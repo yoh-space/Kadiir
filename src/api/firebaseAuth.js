@@ -1,11 +1,6 @@
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
-import { Auth } from '../../FirebaseConfig';
+export const signUp = () => { throw new Error('Firebase removed'); };
+export const signIn = () => { throw new Error('Firebase removed'); };
+export const logOut = () => { throw new Error('Firebase removed'); };
+export const onAuthChange = () => { throw new Error('Firebase removed'); };
 
-const auth = Auth;
-
-export const signUp = (email, password) => createUserWithEmailAndPassword(auth, email, password);
-export const signIn = (email, password) => signInWithEmailAndPassword(auth, email, password);
-export const logOut = () => signOut(auth);
-export const onAuthChange = (callback) => onAuthStateChanged(auth, callback);
-
-export default auth;
+export default null;

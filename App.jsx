@@ -13,7 +13,7 @@ export default function App() {
       <NavigationContainer>
         <View style={{ flex: 1, marginTop: StatusBar.currentHeight || 0 }}>
           <RootStackNavigator />
-          <ExpoStatusBar style="dark-content" />
+          <ExpoStatusBar style="auto" />
         </View>
       </NavigationContainer>
     </FavoritesProvider>

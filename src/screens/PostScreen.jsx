@@ -1,4 +1,5 @@
 import { View, Text, ScrollView, StyleSheet, Image, SafeAreaView } from 'react-native';
+import RelatedPost from './RelatedPost';
 
 export default function PostScreen({ route }) {
   const { post } = route.params;
@@ -44,6 +45,15 @@ export default function PostScreen({ route }) {
             {content.replace(/<p>|<\/p>/gi, '\n').replace(/<[^>]+>/g, '').replace(/&[a-z]+;/gi, '').replace(/\n+/g, '\n').trim()}
           </Text>
         </View>
+
+        {/* Related Posts Section */}
+        <RelatedPost post={post} onPressPost={item => {
+          // Navigate to the selected related post
+          if (item && item.id) {
+            // You may need to use navigation from props or context
+            // Example: navigation.navigate('Post', { post: item })
+          }
+        }} />
 
         {/* Comment Section */}
         <View style={styles.commentSection}>
