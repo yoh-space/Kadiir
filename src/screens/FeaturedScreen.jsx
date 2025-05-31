@@ -3,10 +3,12 @@ import { View, FlatList, Text, StyleSheet, RefreshControl } from 'react-native';
 import BlogPostItem from '../components/BlogPostItem';
 import useWordPressApi from '../hooks/useWordPressApi';
 import { useNavigation } from '@react-navigation/native';
+import { useTheme } from './SettingScreen';
 
 export default function FeaturedScreen() {
   const navigation = useNavigation();
   const { posts, loading, getCategoryNames } = useWordPressApi();
+  const { theme } = useTheme();
   const [featuredPosts, setFeaturedPosts] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -31,8 +33,8 @@ export default function FeaturedScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}>Featured Posts</Text>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
+      <Text style={[styles.header, { color: theme.text }]}>Featured Posts</Text>
       <FlatList
         data={featuredPosts}
         keyExtractor={item => item.id.toString()}
@@ -54,16 +56,15 @@ export default function FeaturedScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f6f8fa',
+    paddingTop: 8,
+    paddingHorizontal: 0,
   },
   header: {
-    fontSize: 28,
+    fontSize: 26,
     fontWeight: 'bold',
-    color: '#222',
-    marginTop: 24,
-    marginBottom: 8,
+    marginBottom: 16,
     alignSelf: 'center',
-    letterSpacing: 1,
+    marginTop: 16,
   },
   empty: {
     alignSelf: 'center',

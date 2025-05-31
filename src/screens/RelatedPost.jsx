@@ -1,9 +1,11 @@
 import React from 'react';
 import { View, Text, FlatList, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import useWordPressApi from '../hooks/useWordPressApi';
 
-export default function RelatedPost({ post, onPressPost }) {
+export default function RelatedPost({ post }) {
   const { posts, getCategoryNames } = useWordPressApi();
+  const navigation = useNavigation();
   // Find related posts by category, excluding the current post
   const related = posts.filter(
     p =>
@@ -14,7 +16,7 @@ export default function RelatedPost({ post, onPressPost }) {
   if (!related.length) return null;
 
   return (
-    <View style={{ marginTop: 24 }}>
+    <View style={{ marginTop: 24, marginBottom: 24 }}>
       <Text style={styles.header}>Related Posts</Text>
       <FlatList
         data={related}
@@ -30,7 +32,7 @@ export default function RelatedPost({ post, onPressPost }) {
           return (
             <TouchableOpacity
               style={styles.card}
-              onPress={() => onPressPost ? onPressPost(item) : null}
+              onPress={() => navigation.push('Post', { post: item })}
               activeOpacity={0.8}
             >
               {imageUrl && (

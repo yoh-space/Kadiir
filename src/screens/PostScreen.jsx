@@ -1,8 +1,11 @@
+import React from 'react';
 import { View, Text, ScrollView, StyleSheet, Image, SafeAreaView } from 'react-native';
 import RelatedPost from './RelatedPost';
+import { useTheme } from './SettingScreen';
 
 export default function PostScreen({ route }) {
   const { post } = route.params;
+  const { isDark, theme } = useTheme();
 
   // Get featured image if available
   let imageUrl = null;
@@ -13,8 +16,60 @@ export default function PostScreen({ route }) {
   // Render full content (prefer content.rendered, fallback to excerpt)
   const content = post.content?.rendered || post.excerpt?.rendered || '';
 
+  // Theme styles
+  const themeStyles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: theme.background || (isDark ? '#181A20' : '#F7F7F7'),
+    },
+    textContent: {
+      backgroundColor: theme.card || (isDark ? '#23262F' : '#FFF'),
+    },
+    title: {
+      color: theme.text || (isDark ? '#FFF' : '#181A20'),
+    },
+    metaText: {
+      color: theme.secondaryText || (isDark ? '#A1A1AA' : '#6B7280'),
+    },
+    dotSeparator: {
+      backgroundColor: theme.secondaryText || (isDark ? '#A1A1AA' : '#6B7280'),
+    },
+    divider: {
+      backgroundColor: theme.divider || (isDark ? '#23262F' : '#E5E7EB'),
+    },
+    body: {
+      color: theme.text || (isDark ? '#FFF' : '#181A20'),
+    },
+    commentSection: {
+      backgroundColor: theme.card || (isDark ? '#23262F' : '#FFF'),
+      borderTopColor: theme.divider || (isDark ? '#23262F' : '#E5E7EB'),
+    },
+    commentHeader: {
+      color: theme.text || (isDark ? '#FFF' : '#181A20'),
+    },
+    commentBox: {
+      backgroundColor: theme.surface || (isDark ? '#23262F' : '#F3F4F6'),
+    },
+    commentAuthor: {
+      color: theme.text || (isDark ? '#FFF' : '#181A20'),
+    },
+    commentMeta: {
+      color: theme.secondaryText || (isDark ? '#A1A1AA' : '#6B7280'),
+    },
+    commentText: {
+      color: theme.secondaryText || (isDark ? '#A1A1AA' : '#6B7280'),
+    },
+    addCommentBox: {
+      backgroundColor: theme.surface || (isDark ? '#23262F' : '#F3F4F6'),
+      borderColor: theme.divider || (isDark ? '#23262F' : '#E5E7EB'),
+    },
+    addCommentText: {
+      color: theme.secondaryText || (isDark ? '#A1A1AA' : '#6B7280'),
+    },
+  });
+
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={themeStyles.container}>
       <ScrollView 
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
@@ -26,53 +81,53 @@ export default function PostScreen({ route }) {
               style={styles.image} 
               resizeMode="cover"
             />
-            <View style={styles.imageOverlay} />
+            <View style={[styles.imageOverlay, { 
+              backgroundColor: isDark ? 'rgba(0,0,0,0.3)' : 'rgba(0,0,0,0.05)' 
+            }]} />
           </View>
         )}
         
-        <View style={styles.textContent}>
-          <Text style={styles.title}>{post.title.rendered}</Text>
+        <View style={[styles.textContent, themeStyles.textContent]}>
+          <Text style={[styles.title, themeStyles.title]}>{post.title.rendered}</Text>
           
           <View style={styles.metaContainer}>
-            <Text style={styles.date}>{new Date(post.date).toLocaleDateString()}</Text>
-            <View style={styles.dotSeparator} />
-            <Text style={styles.readTime}>5 min read</Text>
+            <Text style={[styles.date, themeStyles.metaText]}>{new Date(post.date).toLocaleDateString()}</Text>
+            <View style={[styles.dotSeparator, themeStyles.dotSeparator]} />
+            <Text style={[styles.readTime, themeStyles.metaText]}>5 min read</Text>
           </View>
           
-          <View style={styles.divider} />
+          <View style={[styles.divider, themeStyles.divider]} />
           
-          <Text style={styles.body}>
+          <Text style={[styles.body, themeStyles.body]}>
             {content.replace(/<p>|<\/p>/gi, '\n').replace(/<[^>]+>/g, '').replace(/&[a-z]+;/gi, '').replace(/\n+/g, '\n').trim()}
           </Text>
         </View>
 
         {/* Related Posts Section */}
         <RelatedPost post={post} onPressPost={item => {
-          // Navigate to the selected related post
           if (item && item.id) {
-            // You may need to use navigation from props or context
-            // Example: navigation.navigate('Post', { post: item })
+            // Navigation logic here
           }
         }} />
 
         {/* Comment Section */}
-        <View style={styles.commentSection}>
-          <Text style={styles.commentHeader}>Comments</Text>
+        <View style={[styles.commentSection, themeStyles.commentSection]}>
+          <Text style={[styles.commentHeader, themeStyles.commentHeader]}>Comments</Text>
           
-          <View style={styles.commentBox}>
-            <Text style={styles.commentAuthor}>Jane Doe</Text>
-            <Text style={styles.commentMeta}>2 days ago</Text>
-            <Text style={styles.commentText}>Great post! Really enjoyed the insights.</Text>
+          <View style={[styles.commentBox, themeStyles.commentBox]}>
+            <Text style={[styles.commentAuthor, themeStyles.commentAuthor]}>Jane Doe</Text>
+            <Text style={[styles.commentMeta, themeStyles.commentMeta]}>2 days ago</Text>
+            <Text style={[styles.commentText, themeStyles.commentText]}>Great post! Really enjoyed the insights.</Text>
           </View>
           
-          <View style={styles.commentBox}>
-            <Text style={styles.commentAuthor}>John Smith</Text>
-            <Text style={styles.commentMeta}>1 week ago</Text>
-            <Text style={styles.commentText}>Thanks for sharing this valuable information.</Text>
+          <View style={[styles.commentBox, themeStyles.commentBox]}>
+            <Text style={[styles.commentAuthor, themeStyles.commentAuthor]}>John Smith</Text>
+            <Text style={[styles.commentMeta, themeStyles.commentMeta]}>1 week ago</Text>
+            <Text style={[styles.commentText, themeStyles.commentText]}>Thanks for sharing this valuable information.</Text>
           </View>
           
-          <View style={styles.addCommentBox}>
-            <Text style={styles.addCommentText}>Write a comment...</Text>
+          <View style={[styles.addCommentBox, themeStyles.addCommentBox]}>
+            <Text style={[styles.addCommentText, themeStyles.addCommentText]}>Write a comment...</Text>
           </View>
         </View>
       </ScrollView>
@@ -80,17 +135,14 @@ export default function PostScreen({ route }) {
   );
 }
 
+// Base styles (layout-only, no colors)
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f9f9f9',
-  },
   content: {
-    paddingBottom: 5,
+    paddingBottom: 30,
   },
   imageContainer: {
     position: 'relative',
-    marginBottom: 20,
+    marginBottom: 0,
   },
   image: {
     width: '100%',
@@ -98,87 +150,79 @@ const styles = StyleSheet.create({
   },
   imageOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,0,0,0.05)',
   },
   textContent: {
-    paddingHorizontal: 20,
+    padding: 20,
+    marginHorizontal: 16,
+    marginTop: -20,
+    borderRadius: 12,
+    zIndex: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 3,
   },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#1a1a1a',
     marginBottom: 15,
     lineHeight: 36,
   },
   metaContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 5,
+    marginBottom: 15,
   },
   date: {
     fontSize: 14,
-    color: '#666',
     fontFamily: 'System',
   },
   dotSeparator: {
     width: 4,
     height: 4,
     borderRadius: 2,
-    backgroundColor: '#999',
     marginHorizontal: 8,
   },
   readTime: {
     fontSize: 14,
-    color: '#666',
   },
   divider: {
     height: 1,
-    backgroundColor: '#e0e0e0',
-    marginVertical: 2,
-  },  body: {
+    marginVertical: 20,
+  },
+  body: {
     fontSize: 17,
-    color: '#333',
     lineHeight: 28,
     letterSpacing: 0.2,
-    marginBottom: 0,
-    marginTop: 0,
-    padding: 0,
   },
   commentSection: {
-    marginTop: 10,
-    paddingTop: 10,
-    paddingBottom: 10,
+    marginTop: 20,
+    paddingTop: 20,
     paddingHorizontal: 20,
     borderTopWidth: 1,
-    borderTopColor: '#eaeaea',
-    backgroundColor: '#fff',
-    paddingBottom: 10,
+    paddingBottom: 20,
   },
   commentHeader: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#1a1a1a',
     marginBottom: 20,
   },
   commentBox: {
-    backgroundColor: '#f8f9fa',
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
   },
   commentAuthor: {
     fontWeight: '600',
-    color: '#1a1a1a',
     fontSize: 16,
     marginBottom: 4,
   },
   commentMeta: {
-    color: '#888',
     fontSize: 13,
     marginBottom: 8,
   },
   commentText: {
-    color: '#444',
     fontSize: 15,
     lineHeight: 22,
   },
@@ -186,13 +230,10 @@ const styles = StyleSheet.create({
     marginTop: 16,
     padding: 16,
     borderRadius: 12,
-    backgroundColor: '#f8f9fa',
     borderWidth: 1,
-    borderColor: '#e0e0e0',
     borderStyle: 'dashed',
   },
   addCommentText: {
-    color: '#888',
     fontSize: 16,
   },
 });

@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { View, FlatList, Text, StyleSheet, ActivityIndicator, RefreshControl } from 'react-native';
 import { useFavorites } from '../components/FavoritesContext';
 import BlogPostItem from '../components/BlogPostItem';
+import { useTheme } from './SettingScreen';
 
 export default function FavoritesScreen({ navigation }) {
   const { favoritePosts, favoriteIds, toggleFavorite } = useFavorites();
+  const { isDark, theme } = useTheme();
   const [refreshing, setRefreshing] = useState(false);
 
   const onRefresh = async () => {
@@ -13,8 +15,8 @@ export default function FavoritesScreen({ navigation }) {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}>Favorites</Text>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
+      <Text style={[styles.header, { color: theme.text }]}>Favorites</Text>
       <FlatList
         data={favoritePosts}
         keyExtractor={item => item.id.toString()}
@@ -29,7 +31,7 @@ export default function FavoritesScreen({ navigation }) {
         )}
         refreshControl={<RefreshControl refreshing={false} onRefresh={() => {}} />}
         contentContainerStyle={{ padding: 12, paddingBottom: 24 }}
-        ListEmptyComponent={<Text style={styles.empty}>No favorites yet.</Text>}
+        ListEmptyComponent={<Text style={[styles.empty, { color: isDark ? '#aaa' : '#888' }]}>No favorites yet.</Text>}
       />
     </View>
   );
@@ -38,12 +40,12 @@ export default function FavoritesScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f6f8fa',
+    paddingTop: 8,
+    paddingHorizontal: 0,
   },
   header: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#222',
     marginTop: 24,
     marginBottom: 8,
     alignSelf: 'center',

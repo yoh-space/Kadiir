@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useTheme } from '../screens/SettingScreen';
 
 function getFeaturedImage(post) {
   if (post._embedded && post._embedded['wp:featuredmedia'] && post._embedded['wp:featuredmedia'][0]?.source_url) {
@@ -16,14 +17,15 @@ function stripHtml(html) {
 
 export default function BlogPostItem({ post, categoryNames, onPress, isFavorite, onToggleFavorite, isBookmarked, onToggleBookmark }) {
   const imageUrl = getFeaturedImage(post);
+  const { isDark, theme } = useTheme();
   return (
-    <View style={styles.card}>
+    <View style={[styles.card, { backgroundColor: isDark ? '#181a20' : 'whitesmoke' }]}> 
       {imageUrl && (
         <Image source={{ uri: imageUrl }} style={styles.image} resizeMode="cover" />
       )}
       <View style={styles.topRightBtns}>
         <TouchableOpacity
-          style={styles.favoriteBtn}
+          style={[styles.favoriteBtn, { backgroundColor: isDark ? 'rgba(30,30,30,0.85)' : 'rgba(255,255,255,0.85)' }]}
           onPress={onToggleFavorite}
         >
           <Ionicons
@@ -33,7 +35,7 @@ export default function BlogPostItem({ post, categoryNames, onPress, isFavorite,
           />
         </TouchableOpacity>
         <TouchableOpacity
-          style={styles.bookmarkBtn}
+          style={[styles.bookmarkBtn, { backgroundColor: isDark ? 'rgba(30,30,30,0.85)' : 'rgba(255,255,255,0.85)' }]}
           onPress={onToggleBookmark}
         >
           <MaterialCommunityIcons
@@ -43,10 +45,10 @@ export default function BlogPostItem({ post, categoryNames, onPress, isFavorite,
           />
         </TouchableOpacity>
       </View>
-      <Text style={styles.title}>{post.title.rendered}</Text>
-      <Text style={styles.meta}>{new Date(post.date).toLocaleDateString()} • {categoryNames.join(', ')}</Text>
-      <Text style={styles.excerpt} numberOfLines={3}>{stripHtml(post.excerpt.rendered)}</Text>
-      <TouchableOpacity style={styles.readMoreBtn} onPress={onPress}>
+      <Text style={[styles.title, { color: isDark ? '#fff' : '#222' }]}>{post.title.rendered}</Text>
+      <Text style={[styles.meta, { color: isDark ? '#aaa' : '#888' }]}>{new Date(post.date).toLocaleDateString()} • {categoryNames.join(', ')}</Text>
+      <Text style={[styles.excerpt, { color: isDark ? '#eee' : '#444' }]} numberOfLines={3}>{stripHtml(post.excerpt.rendered)}</Text>
+      <TouchableOpacity style={[styles.readMoreBtn, { backgroundColor: isDark ? '#1db954' : 'darkgreen' }]} onPress={onPress}>
         <Text style={styles.readMoreText}>Read More</Text>
       </TouchableOpacity>
     </View>
@@ -55,7 +57,6 @@ export default function BlogPostItem({ post, categoryNames, onPress, isFavorite,
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#fff',
     borderRadius: 12,
     marginBottom: 18,
     padding: 16,
@@ -80,35 +81,29 @@ const styles = StyleSheet.create({
     zIndex: 2,
   },
   favoriteBtn: {
-    backgroundColor: 'rgba(255,255,255,0.85)',
     borderRadius: 20,
     padding: 4,
     marginRight: 4,
   },
   bookmarkBtn: {
-    backgroundColor: 'rgba(255,255,255,0.85)',
     borderRadius: 20,
     padding: 4,
   },
   title: {
     fontSize: 19,
     fontWeight: 'bold',
-    color: '#222',
     marginBottom: 4,
   },
   meta: {
     fontSize: 13,
-    color: '#888',
     marginBottom: 8,
   },
   excerpt: {
     fontSize: 15,
-    color: '#444',
     marginBottom: 12,
   },
   readMoreBtn: {
     alignSelf: 'flex-start',
-    backgroundColor: '#4a90e2',
     borderRadius: 6,
     paddingVertical: 6,
     paddingHorizontal: 16,

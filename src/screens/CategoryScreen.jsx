@@ -6,6 +6,7 @@ import BlogPostItem from '../components/BlogPostItem';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { useFavorites } from '../components/FavoritesContext';
+import { useTheme } from './SettingScreen';
 
 function getFeaturedImage(post) {
   // Try to get the featured image from _embedded if available
@@ -26,7 +27,7 @@ export default function CategoryScreen({ categoryName }) {
     refresh,
     getCategoryNames,
   } = useWordPressApi();
-
+  const { isDark, theme } = useTheme();
   const { favoriteIds, toggleFavorite, bookmarkedPosts, toggleBookmark } = useFavorites();
 
   // Filter posts by category name, case-insensitive
@@ -50,16 +51,16 @@ export default function CategoryScreen({ categoryName }) {
   };
 
   return (
-    <View style={styles.container}>
-      {loading && <ActivityIndicator size="large" color="#4a90e2" style={{ marginTop: 40 }} />}
-      {error && <Text style={styles.error}>{error}</Text>}
+    <View style={[styles.container, { backgroundColor: theme.background }]}> 
+      {loading && <ActivityIndicator size="large" color={isDark ? '#1db954' : '#4a90e2'} style={{ marginTop: 40 }} />}
+      {error && <Text style={[styles.error, { color: isDark ? '#ff7675' : 'red' }]}>{error}</Text>}
       <FlatList
         data={filteredPosts}
         keyExtractor={item => item.id.toString()}
         renderItem={renderItem}
         refreshControl={<RefreshControl refreshing={loading} onRefresh={refresh} />}
         contentContainerStyle={{ padding: 12, paddingBottom: 24 }}
-        ListEmptyComponent={!loading && <Text style={styles.empty}>No posts found in this category.</Text>}
+        ListEmptyComponent={!loading && <Text style={[styles.empty, { color: isDark ? '#aaa' : '#888' }]}>No posts found.</Text>}
       />
     </View>
   );

@@ -3,10 +3,13 @@ import { View, FlatList, Text, StyleSheet, RefreshControl } from 'react-native';
 import BlogPostItem from '../components/BlogPostItem';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
+import { useTheme } from './SettingScreen';
+import useWordPressApi from '../hooks/useWordPressApi';
 
 export default function BookmarkedScreen() {
   const navigation = useNavigation();
-  const [bookmarkedPosts, setBookmarkedPosts] = useState([]);
+  const { isDark, theme } = useTheme();
+  const { bookmarkedPosts, getCategoryNames } = useWordPressApi();
   const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
@@ -26,22 +29,22 @@ export default function BookmarkedScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}>Bookmarked Posts</Text>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
+      <Text style={[styles.header, { color: theme.text }]}>Bookmarked Posts</Text>
       <FlatList
         data={bookmarkedPosts}
         keyExtractor={item => item.id.toString()}
         renderItem={({ item }) => (
           <BlogPostItem
             post={item}
-            categoryNames={item.categories ? item.categories.map(String) : []}
+            categoryNames={getCategoryNames(item.categories)}
             onPress={() => navigation.navigate('Post', { post: item })}
             isBookmarked={true}
           />
         )}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         contentContainerStyle={{ padding: 12, paddingBottom: 24 }}
-        ListEmptyComponent={<Text style={styles.empty}>No bookmarks yet.</Text>}
+        ListEmptyComponent={<Text style={[styles.empty, { color: theme.text }]}>No bookmarks yet.</Text>}
       />
     </View>
   );
@@ -50,20 +53,18 @@ export default function BookmarkedScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f6f8fa',
+    paddingTop: 8,
+    paddingHorizontal: 0,
   },
   header: {
-    fontSize: 28,
+    fontSize: 26,
     fontWeight: 'bold',
-    color: '#222',
-    marginTop: 24,
-    marginBottom: 8,
+    marginBottom: 16,
     alignSelf: 'center',
-    letterSpacing: 1,
+    marginTop: 16,
   },
   empty: {
     alignSelf: 'center',
-    color: '#888',
     marginTop: 40,
     fontSize: 16,
   },
