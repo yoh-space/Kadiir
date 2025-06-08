@@ -3,9 +3,9 @@ import { View, Text, StyleSheet, ImageBackground, TouchableOpacity,StatusBar } f
 export default function SplashScreen({ onDone }) {
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+      <StatusBar barStyle= "light-content" backgroundColor="transparent" translucent />
       <ImageBackground
-        source={require('../assets/splash1.png')} // Replace with your splash image
+        source={require('../assets/splash1.png')} 
         style={styles.bg}
         resizeMode="cover"
       >

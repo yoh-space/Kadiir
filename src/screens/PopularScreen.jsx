@@ -39,7 +39,7 @@ function PopularScreen() {
   const restPopular = popularPosts.slice(3);
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.background }]}>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>  
       <Text style={[styles.header, { color: theme.text }]}>Popular Posts</Text>
       {mostViewed.length > 0 && (
         <View style={styles.mostViewedSection}>

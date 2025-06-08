@@ -2,7 +2,7 @@ import React from 'react';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import MainTabNavigator from './MainTabNavigator';
 import SettingScreen from '../screens/SettingScreen';
-import AboutScreen from '../screens/A';
+import AboutScreen from '../screens/AboutScreen';
 import ContactScreen from '../screens/ContactScreen';
 import Rateus from '../screens/Rateus';
 

@@ -6,7 +6,7 @@ import { NavigationContainer } from '@react-navigation/native';
 
 import RootStackNavigator from './src/components/RootStackNavigator';
 import { FavoritesProvider } from './src/components/FavoritesContext';
-import { ThemeProvider } from './src/screens/SettingScreen';
+import { ThemeProvider, useTheme, isDark } from './src/screens/SettingScreen';
 import SplashScreen from './src/screens/SplashScreen';
 
 export default function App() {
@@ -34,7 +34,7 @@ export default function App() {
         <NavigationContainer>
           <View style={{ flex: 1, marginTop: StatusBar.currentHeight || 0 }}>
             <RootStackNavigator />
-            <ExpoStatusBar style="auto" />
+            <ExpoStatusBar style='light'/>
           </View>
         </NavigationContainer>
       </ThemeProvider>

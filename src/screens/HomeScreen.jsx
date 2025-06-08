@@ -5,6 +5,8 @@ import useWordPressApi from '../hooks/useWordPressApi';
 import BlogPostItem from '../components/BlogPostItem';
 import { Ionicons } from '@expo/vector-icons';
 import Icons from 'react-native-vector-icons';
+import { DrawerActions } from '@react-navigation/native';
+import { StatusBar } from 'expo-status-bar';
 
 export default function HomeScreen({ navigation }) {
   const {
@@ -77,26 +79,23 @@ export default function HomeScreen({ navigation }) {
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>         
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
       {/* Header */}
-      <View style={[styles.headerRow, {marginTop: 15}]}>
-        <TouchableOpacity size={28} style={{marginRight: 10}} color="#fff" onPress={() => navigation.openDrawer()}>
-          <Ionicons name="menu" size={28} color="darkgreen"/>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.avatarCircle} onPress={() => navigation.navigate('Profile')}>
-          <Ionicons name="person" size={28} color="#fff" />
+      <View style={[styles.headerRow, {marginTop: 10}]}> 
+        <TouchableOpacity style={styles.avatarCircle} onPress={() => navigation.dispatch(DrawerActions.openDrawer())}>
+          <Image source={require('../assets/image.png')} style={{ width: 28, height: 28, resizeMode: 'contain' }} />
         </TouchableOpacity>
         <View style={{ flex: 1, marginLeft: 10 }}>
-          <Text style={styles.greeting}>Good Morning,</Text>
-          <Text style={styles.username}>Oh Haewon</Text>
+          <Text style={styles.greeting}>Kadiir Blog</Text>
+          <Text style={styles.username}>Get Latest Info</Text>
         </View>
         <TouchableOpacity style={styles.headerIconBtn} onPress={() => setShowSearch(v => !v)}>
           <Ionicons name={showSearch ? 'close' : 'search'} size={22} color="#222" />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.headerIconBtn}>
+        <TouchableOpacity style={styles.headerIconBtn} onPress={() => navigation.navigate('Notification')}>
           <Ionicons name="notifications-outline" size={22} color="#222" />
         </TouchableOpacity>
-      </View>
+      </View> 
 
       {showSearch && (
         <View style={styles.searchBarContainer}>
@@ -139,10 +138,13 @@ export default function HomeScreen({ navigation }) {
         scrollEventThrottle={16}
         ListHeaderComponent={
           <>
-            {/* Breaking News */}
+            {/* Latest News */}
             <View style={styles.sectionRow}>
-              <Text style={styles.sectionTitle}>Breaking News</Text>
-              <TouchableOpacity><Text style={styles.seeAll}>See All</Text></TouchableOpacity>
+              <Text style={styles.sectionTitle}>Latest Blog</Text>
+              <TouchableOpacity onPress={() => navigation.navigate('BlogList', { category: 'Latest' })}>
+                <Ionicons name="newspaper-outline" size={20} />
+                <Text style={styles.seeAll}>See All</Text>
+              </TouchableOpacity>
             </View>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 10 }}>
               {breakingNews.map((item, idx) => (
@@ -192,7 +194,7 @@ export default function HomeScreen({ navigation }) {
               <>
                 <View style={styles.sectionRow}>
                   <Text style={styles.sectionTitle}>Only For You</Text>
-                  <TouchableOpacity><Text style={styles.seeAll}>See All</Text></TouchableOpacity>
+                  <TouchableOpacity onPress={() => navigation.navigate('BlogList', { category: 'Academics' })}><Text style={styles.seeAll}>See All</Text></TouchableOpacity>
                 </View>
                 <View style={{ paddingHorizontal: 16 }}>
                   {onlyForYou.map(item => (
@@ -210,7 +212,7 @@ export default function HomeScreen({ navigation }) {
                         <Text style={styles.forYouTitle} numberOfLines={2}>{item.title.rendered}</Text>
                         <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4 }}>
                           <Ionicons name="person-circle" size={18} color="#bbb" />
-                          <Text style={styles.forYouMeta}>John Doe - 3 hours ago</Text>
+                          <Text style={styles.forYouMeta}>Kadiir Abdulatif</Text>
                         </View>
                       </View>
                     </TouchableOpacity>
@@ -251,12 +253,19 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   avatarCircle: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: '#bbb',
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: 'navy',
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 1.5,
+    borderColor: 'darkgreen',
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 3,
   },
   greeting: {
     fontSize: 13,
@@ -346,6 +355,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     paddingHorizontal: 10,
     marginBottom: 10,
+    marginTop: 5,
   },
   categoryPill: {
     backgroundColor: '#f2f2f2',

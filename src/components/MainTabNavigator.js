@@ -2,7 +2,7 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import FavoritesScreen from '../screens/FavoritesScreen';
 import ProfileScreen from '../screens/ProfileScreen';
-import BookmarkedScreen from '../screens/BookmarkedScreen';
+import PopularScreen from '../screens/PopularScreen';
 import FeaturedScreen from '../screens/FeaturedScreen';
 import { useTheme } from '../screens/SettingScreen';
 import { Ionicons } from '@expo/vector-icons';
@@ -20,10 +20,11 @@ const MainTabNavigator = () => {
           switch (route.name) {
             case 'Home': iconName = 'home-outline'; break;
             case 'Favorites': iconName = 'heart-outline'; break;
-            case 'Bookmarked': iconName = 'bookmark-outline'; break;
+            case 'Popular': iconName = 'flame-outline'; break;
             case 'Featured': iconName = 'star-outline'; break;
             case 'Profile': iconName = 'person-outline'; break;
-            // case 'Settings': iconName = 'settings-outline'; break;
+            case 'Notification': iconName = 'notifications-outline'; break;
+            case 'BlogList': iconName = 'newspaper-outline'; break;
             default: iconName = 'help-outline';
           }
           return <Ionicons name={iconName} size={size} color={color} />;
@@ -62,9 +63,9 @@ const MainTabNavigator = () => {
         options={{ title: 'Featured' }}
       />
       <Tab.Screen 
-        name="Bookmarked" 
-        component={BookmarkedScreen} 
-        options={{ title: 'Saved' }}
+        name="Popular" 
+        component={PopularScreen} 
+        options={{ title: 'Popular' }}
       />
       <Tab.Screen 
         name="Favorites" 
@@ -76,11 +77,11 @@ const MainTabNavigator = () => {
         component={ProfileScreen} 
         options={{ title: 'Profile' }}
       />
-      {/* <Tab.Screen 
-        name="Settings" 
-        component={SettingScreen} 
-        options={{ title: 'Settings' }}
-      /> */}
+      <Tab.Screen 
+        name="Notification" 
+        component={require('../screens/Notification').default}
+        options={{ title: 'Notification' }}
+      />
     </Tab.Navigator>
   );
 };
