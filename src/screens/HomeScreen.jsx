@@ -81,13 +81,13 @@ export default function HomeScreen({ navigation }) {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
       {/* Header */}
-      <View style={[styles.headerRow, {marginTop: 10}]}> 
+      <View style={[styles.headerRow]}> 
         <TouchableOpacity style={styles.avatarCircle} onPress={() => navigation.dispatch(DrawerActions.openDrawer())}>
           <Image source={require('../assets/image.png')} style={{ width: 28, height: 28, resizeMode: 'contain' }} />
         </TouchableOpacity>
         <View style={{ flex: 1, marginLeft: 10 }}>
-          <Text style={styles.greeting}>Kadiir Blog</Text>
-          <Text style={styles.username}>Get Latest Info</Text>
+          <Text style={[styles.greeting, { color: theme.text }]}>Kadiir Blog</Text>
+          <Text style={[styles.username, { color: theme.text }]}>Get Latest Info</Text>
         </View>
         <TouchableOpacity style={styles.headerIconBtn} onPress={() => setShowSearch(v => !v)}>
           <Ionicons name={showSearch ? 'close' : 'search'} size={22} color="#222" />
@@ -117,7 +117,7 @@ export default function HomeScreen({ navigation }) {
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          style={[styles.categoryPillsRow, styles.stickyCategoryPills]}
+          style={[styles.categoryPillsRow, styles.stickyCategoryPills, { backgroundColor: theme.background }]}
         >
           {categoryNames.map(cat => (
             <TouchableOpacity
@@ -140,10 +140,10 @@ export default function HomeScreen({ navigation }) {
           <>
             {/* Latest News */}
             <View style={styles.sectionRow}>
-              <Text style={styles.sectionTitle}>Latest Blog</Text>
+              <Text style={[styles.sectionTitle, { color: theme.text }]}>Latest Blog</Text>
               <TouchableOpacity onPress={() => navigation.navigate('BlogList', { category: 'Latest' })}>
-                <Ionicons name="newspaper-outline" size={20} />
-                <Text style={styles.seeAll}>See All</Text>
+                <Ionicons name="newspaper-outline" size={20} color={theme.text} />
+                <Text style={[styles.seeAll, { color: theme.text }]}>See All</Text>
               </TouchableOpacity>
             </View>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 10 }}>
@@ -193,8 +193,8 @@ export default function HomeScreen({ navigation }) {
             {selectedCategory === 'All' && (
               <>
                 <View style={styles.sectionRow}>
-                  <Text style={styles.sectionTitle}>Only For You</Text>
-                  <TouchableOpacity onPress={() => navigation.navigate('BlogList', { category: 'Academics' })}><Text style={styles.seeAll}>See All</Text></TouchableOpacity>
+                  <Text style={[styles.sectionTitle, { color: theme.text }]}>Only For You</Text>
+                  <TouchableOpacity onPress={() => navigation.navigate('BlogList', { category: 'Academics' })}><Text style={[styles.seeAll, { color: theme.text }]}>See All</Text></TouchableOpacity>
                 </View>
                 <View style={{ paddingHorizontal: 16 }}>
                   {onlyForYou.map(item => (
@@ -208,7 +208,7 @@ export default function HomeScreen({ navigation }) {
                         <Image source={{ uri: item._embedded['wp:featuredmedia'][0].source_url }} style={styles.forYouImage} />
                       )}
                       <View style={{ flex: 1, marginLeft: 12 }}>
-                        <Text style={styles.forYouCategory}>CeleBuzz</Text>
+                        <Text style={styles.forYouCategory}>Kadiir</Text>
                         <Text style={styles.forYouTitle} numberOfLines={2}>{item.title.rendered}</Text>
                         <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4 }}>
                           <Ionicons name="person-circle" size={18} color="#bbb" />
@@ -355,7 +355,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     paddingHorizontal: 10,
     marginBottom: 10,
-    marginTop: 5,
   },
   categoryPill: {
     backgroundColor: '#f2f2f2',
@@ -451,7 +450,6 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     zIndex: 10,
-    backgroundColor: '#f6f8fa',
     paddingVertical: 6,
     borderBottomWidth: 1,
     borderColor: '#eee',

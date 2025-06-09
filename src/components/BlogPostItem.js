@@ -34,16 +34,6 @@ export default function BlogPostItem({ post, categoryNames, onPress, isFavorite,
             color={isFavorite ? '#e74c3c' : '#bbb'}
           />
         </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.bookmarkBtn, { backgroundColor: isDark ? 'rgba(30,30,30,0.85)' : 'rgba(255,255,255,0.85)' }]}
-          onPress={onToggleBookmark}
-        >
-          <MaterialCommunityIcons
-            name={isBookmarked ? 'bookmark' : 'bookmark-outline'}
-            size={26}
-            color={isBookmarked ? '#1a73e8' : '#bbb'}
-          />
-        </TouchableOpacity>
       </View>
       <Text style={[styles.title, { color: isDark ? '#fff' : '#222' }]}>{post.title.rendered}</Text>
       <Text style={[styles.meta, { color: isDark ? '#aaa' : '#888' }]}>{new Date(post.date).toLocaleDateString()} • {categoryNames.join(', ')}</Text>

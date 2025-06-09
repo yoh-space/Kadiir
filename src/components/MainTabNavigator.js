@@ -77,11 +77,6 @@ const MainTabNavigator = () => {
         component={ProfileScreen} 
         options={{ title: 'Profile' }}
       />
-      <Tab.Screen 
-        name="Notification" 
-        component={require('../screens/Notification').default}
-        options={{ title: 'Notification' }}
-      />
     </Tab.Navigator>
   );
 };

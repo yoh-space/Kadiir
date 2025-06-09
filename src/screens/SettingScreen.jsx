@@ -1,12 +1,40 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { View, Text, Switch, StyleSheet, SafeAreaView } from 'react-native';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const ThemeContext = createContext();
 
 export function ThemeProvider({ children }) {
   const [isDark, setIsDark] = useState(false);
+
+  // Load saved theme preference from storage
+  useEffect(() => {
+    const loadThemePreference = async () => {
+      try {
+        const savedTheme = await AsyncStorage.getItem('themePreference');
+        if (savedTheme !== null) {
+          setIsDark(savedTheme === 'dark');
+        }
+      } catch (error) {
+        console.log('Error loading theme preference:', error);
+      }
+    };
+    
+    loadThemePreference();
+  }, []);
+
+  // Save theme preference to storage
+  const toggleTheme = async () => {
+    const newTheme = !isDark;
+    setIsDark(newTheme);
+    try {
+      await AsyncStorage.setItem('themePreference', newTheme ? 'dark' : 'light');
+    } catch (error) {
+      console.log('Error saving theme preference:', error);
+    }
+  };
+
   const theme = isDark ? darkTheme : lightTheme;
-  const toggleTheme = () => setIsDark((prev) => !prev);
+
   return (
     <ThemeContext.Provider value={{ isDark, theme, toggleTheme }}>
       {children}
@@ -20,24 +48,24 @@ export function useTheme() {
 
 export default function SettingScreen() {
   const { isDark, toggleTheme, theme } = useTheme();
+  
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>  
       <Text style={[styles.title, { color: theme.text }]}>Settings</Text>
-      <View style={styles.row}>
+      <View style={[styles.row, { borderColor: theme.divider }]}>
         <Text style={[styles.label, { color: theme.text }]}>Dark Mode</Text>
         <Switch
           value={isDark}
           onValueChange={toggleTheme}
-          thumbColor={isDark ? '#1db954' : '#eee'}
-          trackColor={{ false: '#ccc', true: '#23262b' }}
+          thumbColor={isDark ? theme.primary : '#f4f3f4'}
+          trackColor={{ false: '#767577', true: theme.primaryLight }}
         />
       </View>
-      {/* New Settings Options */}
-      <View style={styles.optionBox}>
-        <Text style={[styles.option, { color: isDark ? '#1db954' : '#222' }]}>About Us</Text>
-        <Text style={[styles.option, { color: isDark ? '#1db954' : '#222' }]}>Contact Us</Text>
-        <Text style={[styles.option, { color: isDark ? '#1db954' : '#222' }]}>Services</Text>
-        <Text style={[styles.option, { color: isDark ? '#1db954' : '#222' }]}>Privacy Policy</Text>
+      <View style={[styles.optionBox, { borderTopColor: theme.divider }]}>
+        <Text style={[styles.option, { color: theme.text }]}>About Us</Text>
+        <Text style={[styles.option, { color: theme.text }]}>Contact Us</Text>
+        <Text style={[styles.option, { color: theme.text }]}>Services</Text>
+        <Text style={[styles.option, { color: theme.text }]}>Privacy Policy</Text>
       </View>
     </SafeAreaView>
   );
@@ -60,8 +88,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     width: '80%',
     paddingVertical: 18,
-    borderBottomWidth: 1,
-    borderColor: '#eee',
+    borderBottomWidth: StyleSheet.hairlineWidth,
   },
   label: {
     fontSize: 18,
@@ -70,10 +97,10 @@ const styles = StyleSheet.create({
   optionBox: {
     marginTop: 40,
     width: '80%',
-    backgroundColor: 'transparent',
     borderRadius: 12,
     paddingVertical: 8,
     alignItems: 'flex-start',
+    borderTopWidth: StyleSheet.hairlineWidth,
   },
   option: {
     fontSize: 18,
@@ -81,14 +108,16 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 8,
     width: '100%',
-    borderBottomWidth: 1,
-    borderColor: '#eee',
+    borderBottomWidth: StyleSheet.hairlineWidth,
   },
 });
 
 const lightTheme = {
+  primary: '#1db954',
+  primaryLight: '#d1f5dc',
   background: '#f6f8fa',
   text: '#222',
+  divider: 'rgba(0,0,0,0.1)',
   tabBar: {
     activeTint: '#1db954',
     inactiveTint: '#888',
@@ -100,10 +129,15 @@ const lightTheme = {
     text: '#222',
     tint: '#1db954',
   },
+  statusBar: 'dark',
 };
+
 const darkTheme = {
+  primary: '#1db954',
+  primaryLight: '#1a3a26',
   background: '#181a20',
   text: '#fff',
+  divider: 'rgba(255,255,255,0.1)',
   tabBar: {
     activeTint: '#1db954',
     inactiveTint: '#aaa',
@@ -115,4 +149,5 @@ const darkTheme = {
     text: '#fff',
     tint: '#1db954',
   },
+  statusBar: 'light',
 };
