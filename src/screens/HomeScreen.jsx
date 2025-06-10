@@ -176,7 +176,7 @@ export default function HomeScreen({ navigation }) {
         
         <View style={styles.headerTextContainer}>
           <Text style={[styles.greeting, { color: theme.text }]}>KADIIR BLOG</Text>
-          <Text style={[styles.username, { color: theme.text }]}>GET THE LATEST MADNESS!</Text>
+          <Text style={[styles.username, { color: theme.text }]}>Get Latest info.</Text>
         </View>
         
         <TouchableOpacity 
@@ -455,13 +455,13 @@ const styles = StyleSheet.create({
     marginLeft: 15,
   },
   greeting: {
-    fontSize: 12,
-    color: '#FF9500',
+    fontSize: 15,
+    color: '#008000',
     fontWeight: '800',
     letterSpacing: 1,
   },
   username: {
-    fontSize: 18,
+    fontSize: 12,
     fontWeight: '900',
     color: '#FFF',
     letterSpacing: 0.5,
