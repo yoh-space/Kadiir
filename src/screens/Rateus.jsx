@@ -2,13 +2,18 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { AntDesign, Ionicons } from '@expo/vector-icons';
 import { useTheme } from './SettingScreen'; // Adjust the import path as necessary
+import { useNavigation } from '@react-navigation/native';
 
 export default function Rateus() {
+  const navigation = useNavigation();
   const { isDark, theme } = useTheme();
   const [rating, setRating] = useState(0);
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container]}>
+      <TouchableOpacity onPress={() => navigation.goBack()} style={{ position: 'absolute', top: 40, left: 20, zIndex: 10 }}>
+        <Ionicons name="arrow-back" size={28} color="#1db954" />
+      </TouchableOpacity>
       <View style={styles.card}>
         <AntDesign name="star" size={48} color="#FFD700" style={{ marginBottom: 10 }} />
         <Text style={styles.title}>Rate Us</Text>

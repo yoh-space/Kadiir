@@ -36,105 +36,60 @@ export default function ProfileScreen() {
           { useNativeDriver: false }
         )}
       >
-        <Animated.View style={[
-          styles.headerBg, 
-          { 
-            height: headerHeight,
-            backgroundColor: isDark ? '#181a20' : '#FF6B6B' 
-          }
-        ]}>
+        <Animated.View style={[styles.headerBg, { height: headerHeight }]}>
           <LinearGradient
-            colors={isDark ? ['#181a20', '#23262b'] : ['#FF6B6B', '#FF8E8E']}
+            colors={isDark ? ['#1c1c1c', '#2e2e2e'] : ['#00c6ff', '#0072ff']}
             style={StyleSheet.absoluteFill}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
           />
-          <Animated.View style={[
-            styles.avatarContainer,
-            { 
-              transform: [{ scale: avatarScale }],
-              marginTop: avatarMarginTop 
-            }
-          ]}>
-            <Image 
-              source={require('../../assets/icon.png')} 
-              style={styles.avatar} 
-            />
+          <Animated.View style={[styles.avatarContainer, { transform: [{ scale: avatarScale }], marginTop: avatarMarginTop }]}>
+            <Image source={require('../../assets/icon.png')} style={styles.avatar} />
             <View style={styles.onlineBadge} />
           </Animated.View>
-          <Text style={[styles.name, { color: 'white' }]}>Welcome, Reader!</Text>
-          <Text style={[styles.memberSince, { color: 'rgba(255,255,255,0.8)' }]}>
-            Member since 2023
-          </Text>
+          <Text style={styles.name}>Welcome, Reader!</Text>
+          <Text style={styles.memberSince}>Member since 2023</Text>
         </Animated.View>
 
-        <View style={[styles.card, { backgroundColor: isDark ? '#23262b' : '#fff' }]}>
+        <View style={[styles.card, { backgroundColor: isDark ? '#2a2d33' : '#ffffff' }]}>
           <View style={styles.sectionHeader}>
-            <Icon name="person" size={20} color={isDark ? '#FF6B6B' : '#FF6B6B'} />
-            <Text style={[styles.sectionTitle, { color: isDark ? '#FF6B6B' : '#FF6B6B' }]}>
-              Profile Information
-            </Text>
+            <Icon name="person" size={20} color="#0072ff" />
+            <Text style={[styles.sectionTitle, { color: theme.text }]}>Profile Information</Text>
           </View>
-          
+
           <View style={styles.infoItem}>
-            <Text style={[styles.infoLabel, { color: isDark ? '#A0A0A0' : '#888' }]}>
-              Username
-            </Text>
+            <Text style={[styles.infoLabel, { color: theme.text }]}>Username</Text>
             <Text style={[styles.infoValue, { color: theme.text }]}>Guest</Text>
           </View>
-          
+
           <View style={styles.infoItem}>
-            <Text style={[styles.infoLabel, { color: isDark ? '#A0A0A0' : '#888' }]}>
-              Bio
-            </Text>
-            <Text style={[styles.infoValue, { color: theme.text }]}>
-              Enjoying the best of Kadiir Blog. Bookmark and favorite your top reads!
-            </Text>
+            <Text style={[styles.infoLabel, { color: theme.text }]}>Bio</Text>
+            <Text style={[styles.infoValue, { color: theme.text }]}>Enjoying the best of Kadiir Blog. Bookmark and favorite your top reads!</Text>
           </View>
         </View>
 
         <View style={styles.statsRow}>
-          <View style={[styles.statBox, { backgroundColor: isDark ? '#23262b' : '#fff' }]}>
-            <Icon name="favorite" size={24} color="#FF6B6B" />
-            <Text style={[styles.statNumber, { color: '#FF6B6B' }]}>--</Text>
-            <Text style={[styles.statLabel, { color: isDark ? '#A0A0A0' : '#888' }]}>
-              Favorites
-            </Text>
+          <View style={[styles.statBox, { backgroundColor: isDark ? '#2a2d33' : '#ffffff' }]}>
+            <Icon name="favorite" size={24} color="#ff4757" />
+            <Text style={[styles.statNumber, { color: theme.text }]}>--</Text>
+            <Text style={[styles.statLabel, { color: theme.text }]}>Favorites</Text>
           </View>
-          
-          <View style={[styles.statBox, { backgroundColor: isDark ? '#23262b' : '#fff' }]}>
-            <Icon name="bookmark" size={24} color="#FF6B6B" />
-            <Text style={[styles.statNumber, { color: '#FF6B6B' }]}>--</Text>
-            <Text style={[styles.statLabel, { color: isDark ? '#A0A0A0' : '#888' }]}>
-              Bookmarks
-            </Text>
+          <View style={[styles.statBox, { backgroundColor: isDark ? '#2a2d33' : '#ffffff' }]}>
+            <Icon name="bookmark" size={24} color="#ff4757" />
+            <Text style={[styles.statNumber, { color: theme.text }]}>--</Text>
+            <Text style={[styles.statLabel, { color: theme.text }]}>Bookmarks</Text>
           </View>
         </View>
 
         <View style={styles.actionsContainer}>
-          <TouchableOpacity 
-            style={[styles.actionBtn, { backgroundColor: '#FF6B6B' }]} 
-            activeOpacity={0.85}
-          >
+          <TouchableOpacity style={[styles.actionBtn, { backgroundColor: '#0072ff' }]} activeOpacity={0.85}>
             <Text style={styles.actionBtnText}>Edit Profile</Text>
             <Icon name="edit" size={18} color="white" />
           </TouchableOpacity>
-          
-          <TouchableOpacity 
-            style={[styles.secondaryBtn, { 
-              backgroundColor: isDark ? '#2a2d33' : '#f0f0f0',
-              borderColor: isDark ? '#3a3d43' : '#e0e0e0'
-            }]} 
-            activeOpacity={0.85}
-          >
-            <Text style={[styles.secondaryBtnText, { color: isDark ? '#A0A0A0' : '#555' }]}>
-              Settings
-            </Text>
-            <Icon 
-              name="settings" 
-              size={18} 
-              color={isDark ? '#A0A0A0' : '#555'} 
-            />
+
+          <TouchableOpacity style={[styles.secondaryBtn, { backgroundColor: isDark ? '#2a2d33' : '#f5f5f5' }]} activeOpacity={0.85}>
+            <Text style={[styles.secondaryBtnText, { color: isDark ? '#cfcfcf' : '#333' }]}>Settings</Text>
+            <Icon name="settings" size={18} color={isDark ? '#cfcfcf' : '#333'} />
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -153,15 +108,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: 36,
     paddingBottom: 24,
-    borderBottomLeftRadius: 24,
-    borderBottomRightRadius: 24,
+    borderBottomLeftRadius: 32,
+    borderBottomRightRadius: 32,
     marginBottom: 18,
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOpacity: 0.2,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 5 },
-    elevation: 8,
+    elevation: 10,
   },
   avatarContainer: {
     alignItems: 'center',
@@ -179,35 +129,30 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 10,
     bottom: 10,
-    width: 20,
-    height: 20,
-    borderRadius: 10,
+    width: 18,
+    height: 18,
+    borderRadius: 9,
     backgroundColor: '#4CAF50',
     borderWidth: 2,
     borderColor: 'white',
   },
   name: {
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: 'bold',
     color: '#fff',
-    marginBottom: 4,
-    letterSpacing: 0.5,
+    marginBottom: 2,
+    letterSpacing: 0.8,
   },
   memberSince: {
     fontSize: 14,
-    color: 'rgba(255,255,255,0.8)',
+    color: 'rgba(255,255,255,0.85)',
     marginBottom: 8,
   },
   card: {
     width: '90%',
-    backgroundColor: '#fff',
-    borderRadius: 16,
+    borderRadius: 20,
     padding: 20,
     marginBottom: 18,
-    shadowColor: '#000',
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 4 },
     elevation: 4,
   },
   sectionHeader: {
@@ -226,6 +171,7 @@ const styles = StyleSheet.create({
   infoLabel: {
     fontSize: 13,
     fontWeight: '500',
+    color: '#888',
     marginBottom: 4,
   },
   infoValue: {
@@ -240,15 +186,10 @@ const styles = StyleSheet.create({
   },
   statBox: {
     alignItems: 'center',
-    backgroundColor: '#fff',
     borderRadius: 16,
     padding: 20,
     width: '45%',
-    shadowColor: '#000',
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 4,
+    elevation: 3,
   },
   statNumber: {
     fontSize: 22,
@@ -272,17 +213,12 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     paddingHorizontal: 24,
     marginBottom: 12,
-    shadowColor: '#FF6B6B',
-    shadowOpacity: 0.3,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 5 },
     elevation: 6,
   },
   actionBtnText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
-    letterSpacing: 0.5,
     marginRight: 8,
   },
   secondaryBtn: {
@@ -293,12 +229,10 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingVertical: 14,
     paddingHorizontal: 24,
-    borderWidth: 1,
   },
   secondaryBtnText: {
     fontSize: 16,
     fontWeight: '600',
-    letterSpacing: 0.5,
     marginRight: 8,
   },
 });

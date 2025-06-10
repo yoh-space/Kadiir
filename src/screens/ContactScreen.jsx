@@ -1,10 +1,16 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 
 export default function ContactScreen() {
+  const navigation = useNavigation();
+
   return (
     <View style={styles.container}>
+      <TouchableOpacity onPress={() => navigation.goBack()} style={{ position: 'absolute', top: 40, left: 20, zIndex: 10 }}>
+        <Ionicons name="arrow-back" size={28} color="#1db954" />
+      </TouchableOpacity>
       <View style={styles.card}>
         <MaterialCommunityIcons name="email-outline" size={48} color="#1db954" style={{ marginBottom: 10 }} />
         <Text style={styles.title}>Contact Us</Text>

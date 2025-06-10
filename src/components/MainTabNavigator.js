@@ -2,7 +2,6 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import FavoritesScreen from '../screens/FavoritesScreen';
 import ProfileScreen from '../screens/ProfileScreen';
-import PopularScreen from '../screens/PopularScreen';
 import FeaturedScreen from '../screens/FeaturedScreen';
 import { useTheme } from '../screens/SettingScreen';
 import { Ionicons } from '@expo/vector-icons';
@@ -20,7 +19,6 @@ const MainTabNavigator = () => {
           switch (route.name) {
             case 'Home': iconName = 'home-outline'; break;
             case 'Favorites': iconName = 'heart-outline'; break;
-            case 'Popular': iconName = 'flame-outline'; break;
             case 'Featured': iconName = 'star-outline'; break;
             case 'Profile': iconName = 'person-outline'; break;
             case 'Notification': iconName = 'notifications-outline'; break;
@@ -61,11 +59,6 @@ const MainTabNavigator = () => {
         name="Featured" 
         component={FeaturedScreen} 
         options={{ title: 'Featured' }}
-      />
-      <Tab.Screen 
-        name="Popular" 
-        component={PopularScreen} 
-        options={{ title: 'Popular' }}
       />
       <Tab.Screen 
         name="Favorites" 

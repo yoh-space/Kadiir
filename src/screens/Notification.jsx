@@ -3,6 +3,7 @@ import { SafeAreaView, Text, View, TouchableOpacity } from 'react-native';
 import { useTheme } from './SettingScreen'; // Adjust the import path as necessary
 import useWordPressApi from '../hooks/useWordPressApi';
 import { Ionicons } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function Notification({ navigation }) {
     const { theme } = useTheme();
@@ -16,6 +17,15 @@ export default function Notification({ navigation }) {
             lastSeenPostId.current = posts[0].id;
         }
     }, [posts]);
+
+    useFocusEffect(
+        React.useCallback(() => {
+            // On screen focus, set last seen post id if not set
+            if (posts && posts.length > 0 && lastSeenPostId.current === null) {
+                lastSeenPostId.current = posts[0].id;
+            }
+        }, [posts])
+    );
 
     useEffect(() => {
         // Check for new posts
@@ -34,12 +44,6 @@ export default function Notification({ navigation }) {
 
     return (
         <SafeAreaView style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'center', backgroundColor: theme.background }}>
-            <View style={{ width: '100%', flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, marginTop: 24, marginBottom: 8 }}>
-                <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginRight: 10 }}>
-                    <Ionicons name="arrow-back" size={28} color={theme.text} />
-                </TouchableOpacity>
-                <Text style={{ fontSize: 24, fontWeight: 'bold', color: theme.text }}>Notifications</Text>
-            </View>
             {newPosts.length > 0 ? (
                 <View style={{ marginTop: 30, alignItems: 'center' }}>
                     <Ionicons name="notifications" size={48} color="#1db954" />

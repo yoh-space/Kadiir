@@ -1,10 +1,16 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 
 export default function AboutScreen() {
+  const navigation = useNavigation();
+
   return (
     <View style={styles.container}>
+      <TouchableOpacity onPress={() => navigation.goBack()} style={{ position: 'absolute', top: 40, left: 20, zIndex: 10 }}>
+        <Ionicons name="arrow-back" size={28} color="#1db954" />
+      </TouchableOpacity>
       <View style={styles.header}>
         <Image source={require('../assets/image.png')} style={styles.logo} />
         <Text style={styles.title}>About Kadiir Blog</Text>

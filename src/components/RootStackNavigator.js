@@ -29,6 +29,7 @@ export default function RootStackNavigator() {
         }}
       />
       <Stack.Screen name="BlogList" component={BlogListScreen} options={{ title: 'Blog List', headerStyle: { backgroundColor: isDark ? '#181a20' : 'darkgreen', borderBottomLeftRadius: 18, borderBottomRightRadius: 18, elevation: 3 }, headerTintColor: '#fff', headerTitleAlign: 'center', headerShadowVisible: false, headerBackTitleVisible: false, headerTitleStyle: { fontWeight: 'bold', fontSize: 22, marginTop: 0 } }} />
+      <Stack.Screen name="Notification" component={require('../screens/Notification').default} options={{ title: 'Notifications', headerStyle: { backgroundColor: isDark ? '#181a20' : 'darkgreen', borderBottomLeftRadius: 18, borderBottomRightRadius: 18, elevation: 3 }, headerTintColor: '#fff', headerTitleAlign: 'center', headerShadowVisible: false, headerBackTitleVisible: false, headerTitleStyle: { fontWeight: 'bold', fontSize: 22, marginTop: 0 } }} />
     </Stack.Navigator>
   );
 }

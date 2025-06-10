@@ -48,8 +48,6 @@ function CustomDrawerContent(props) {
         return <Ionicons name={focused ? "heart" : "heart-outline"} size={iconSize} color={iconColor} />;
       case 'Featured':
         return <Ionicons name={focused ? "star" : "star-outline"} size={iconSize} color={iconColor} />;
-      case 'Popular':
-        return <Ionicons name={focused ? "flame" : "flame-outline"} size={iconSize} color={iconColor} />;
       case 'Profile':
         return <Ionicons name={focused ? "person" : "person-outline"} size={iconSize} color={iconColor} />;
       case 'Settings':
@@ -231,7 +229,6 @@ export default function AppDrawerNavigator() {
       <Drawer.Screen name="Home" component={MainTabNavigator} />
       <Drawer.Screen name="Favorites" component={require('../screens/FavoritesScreen').default} />
       <Drawer.Screen name="Featured" component={require('../screens/FeaturedScreen').default} />
-      <Drawer.Screen name="Popular" component={require('../screens/PopularScreen').default} />
       <Drawer.Screen name="Profile" component={require('../screens/ProfileScreen').default} />
       <Drawer.Screen name="Settings" component={SettingScreen} />
       <Drawer.Screen name="About" component={require('../screens/AboutScreen').default} />

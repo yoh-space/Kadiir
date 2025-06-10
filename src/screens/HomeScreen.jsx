@@ -1,23 +1,25 @@
 import React, { useState, useRef } from 'react';
 import { 
+  Text,
   View, 
   FlatList, 
   ActivityIndicator, 
-  Text, 
   StyleSheet, 
   RefreshControl, 
   SafeAreaView, 
-  Image, 
-  TouchableOpacity, 
-  ScrollView, 
-  TextInput,
   Animated,
   Easing,
   Platform,
-  StatusBar
+  StatusBar,
+  TouchableOpacity,
 } from 'react-native';
 import { useTheme } from './SettingScreen';
 import useWordPressApi from '../hooks/useWordPressApi';
+import HomeHeader from '../components/home/HomeHeader';
+import HomeSearchBar from '../components/home/HomeSearchBar';
+import HomeCategoryPills from '../components/home/HomeCategoryPills';
+import HomeBreakingNews from '../components/home/HomeBreakingNews';
+import HomeOnlyForYou from '../components/home/HomeOnlyForYou';
 import BlogPostItem from '../components/BlogPostItem';
 import { Ionicons } from '@expo/vector-icons';
 import { DrawerActions } from '@react-navigation/native';
@@ -33,49 +35,44 @@ export default function HomeScreen({ navigation }) {
   } = useWordPressApi();
   const { isDark, theme } = useTheme();
 
-  const [filteredPosts, setFilteredPosts] = useState(posts);
   const [selectedCategory, setSelectedCategory] = useState('All');
-  const [showSearch, setShowSearch] = useState(false);
-  const [searchText, setSearchText] = useState('');
   const [categoryPillY, setCategoryPillY] = useState(0);
   const [isCategorySticky, setIsCategorySticky] = useState(false);
+  const [searchText, setSearchText] = useState('');
   const flatListRef = useRef();
-  
   // Animation values
-  const searchAnim = useRef(new Animated.Value(0)).current;
   const headerScale = useRef(new Animated.Value(1)).current;
   const categoryPillAnim = useRef(new Animated.Value(0)).current;
 
-  React.useEffect(() => {
-    if (!showSearch || !searchText) {
-      setFilteredPosts(posts);
-    } else {
+  // Compute filtered posts based on search and category
+  const filteredPosts = React.useMemo(() => {
+    let filtered = posts;
+    if (searchText) {
       const keyword = searchText.toLowerCase();
-      setFilteredPosts(
-        posts.filter(
-          p =>
-            p.title.rendered.toLowerCase().includes(keyword) ||
-            p.excerpt.rendered.toLowerCase().includes(keyword)
-        )
+      filtered = filtered.filter(
+        p =>
+          p.title.rendered.toLowerCase().includes(keyword) ||
+          p.excerpt.rendered.toLowerCase().includes(keyword)
       );
     }
-  }, [searchText, posts, showSearch]);
+    if (selectedCategory !== 'All') {
+      const cat = categories.find(c => c.name === selectedCategory);
+      if (cat) {
+        filtered = filtered.filter(post => post.categories.includes(cat.id));
+      } else {
+        // If subcategory, try to match by name
+        filtered = filtered.filter(post => {
+          const postCatNames = getCategoryNames(post.categories);
+          return postCatNames.includes(selectedCategory);
+        });
+      }
+    }
+    return filtered;
+  }, [posts, searchText, selectedCategory, categories, getCategoryNames]);
 
-  // Filter posts by selected category and search
-  const displayedPosts = selectedCategory === 'All'
-    ? filteredPosts
-    : filteredPosts.filter(post => {
-        const cat = categories.find(c => c.name === selectedCategory);
-        return cat && post.categories.includes(cat.id);
-      });
-
-  // Featured (Breaking News) - first 3 posts
+  const displayedPosts = filteredPosts;
   const breakingNews = posts.slice(0, 3);
-
-  // Only For You - next 2 posts
   const onlyForYou = posts.slice(3, 5);
-
-  // Category structure with subcategories
   const categoryTree = [
     { name: 'All', subs: [] },
     { name: 'Academics', subs: ['Agriculture', 'Custom', 'Education', 'Gada'] },
@@ -87,15 +84,6 @@ export default function HomeScreen({ navigation }) {
     { name: 'Technology', subs: ['ICT/IT'] },
     { name: 'Entertainment', subs: [] },
   ];
-
-  const toggleSearch = () => {
-    setShowSearch(v => !v);
-    Animated.spring(searchAnim, {
-      toValue: showSearch ? 0 : 1,
-      useNativeDriver: true,
-      speed: 20,
-    }).start();
-  };
 
   const handleScroll = (event) => {
     const y = event.nativeEvent.contentOffset.y;
@@ -132,9 +120,8 @@ export default function HomeScreen({ navigation }) {
         inputRange: [0, 0.5, 1],
         outputRange: [1, 1.2, 1]
       }) : 1;
-
     return (
-      <Animated.View style={{ transform: [{ scale }] }}>
+      <Animated.View style={{ transform: [{ scale }] }} key={name}>
         <TouchableOpacity
           style={[
             styles.categoryPill,
@@ -159,220 +146,26 @@ export default function HomeScreen({ navigation }) {
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}> 
       <StatusBar style={isDark ? 'light' : 'dark'} />
-
-      {/* Animated Header */}
-      <Animated.View style={[styles.headerRow, { transform: [{ scale: headerScale }] }]}> 
-        <TouchableOpacity 
-          style={styles.avatarCircle}
-          onPress={() => navigation.dispatch(DrawerActions.openDrawer())}
-        >
-          <Image 
-            source={require('../assets/image.png')} 
-            style={styles.avatarImage} 
-          />
-        </TouchableOpacity>
-        
-        <View style={styles.headerTextContainer}>
-          <Text style={[styles.greeting, { color: theme.text }]}>KADIIR BLOG</Text>
-          <Text style={[styles.username, { color: theme.text }]}>Get Latest info.</Text>
-        </View>
-        
-        <TouchableOpacity 
-          style={styles.headerIconBtn} 
-          onPress={toggleSearch}
-        >
-          <Ionicons 
-            name={showSearch ? 'close' : 'search'} 
-            size={24} 
-            color={theme.text} 
-          />
-        </TouchableOpacity>
-        
-        <TouchableOpacity 
-          style={styles.headerIconBtn} 
-          onPress={() => navigation.navigate('Notification')}
-        >
-          <Ionicons 
-            name="notifications-outline" 
-            size={24} 
-            color={theme.text} 
-          />
-          <View style={styles.notificationBadge} />
-        </TouchableOpacity>
-      </Animated.View> 
-
-      {/* Animated Search Bar */}
-      <Animated.View 
-        style={[
-          styles.searchBarContainer, 
-          { 
-            opacity: searchAnim,
-            transform: [
-              { 
-                translateY: searchAnim.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [-20, 0]
-                }) 
-              }
-            ] 
-          }
-        ]}
-      >
-        <Ionicons name="search" size={22} color="#FF3A44" style={styles.searchIcon} />
-        <TextInput
-          style={[styles.searchInput, { color: theme.text }]}
-          placeholder="SEARCH CRAZY ARTICLES..."
-          placeholderTextColor="#bbb"
-          value={searchText}
-          onChangeText={setSearchText}
-          autoFocus
-          clearButtonMode="while-editing"
-        />
-      </Animated.View>
-
-      {/* Sticky Category Pills */}
-      {isCategorySticky && (
-        <Animated.ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={[
-            styles.categoryPillsRow, 
-            styles.stickyCategoryPills, 
-            { 
-              backgroundColor: theme.background,
-              transform: [
-                {
-                  translateY: headerScale.interpolate({
-                    inputRange: [0.9, 1],
-                    outputRange: [-5, 0]
-                  })
-                }
-              ]
-            }
-          ]}
-        >
-          {categoryTree.map(cat => (
-            <React.Fragment key={cat.name}>
-              {renderCategoryPill(cat.name)}
-              {cat.subs.map(sub => renderCategoryPill(sub, true))}
-            </React.Fragment>
-          ))}
-        </Animated.ScrollView>
-      )}
-
+      <HomeHeader navigation={navigation} theme={theme} isDark={isDark} />
+      <HomeSearchBar searchAnim={new Animated.Value(1)} theme={theme} searchText={searchText} setSearchText={setSearchText} />
+      <HomeCategoryPills 
+        isSticky={isCategorySticky} 
+        headerScale={headerScale} 
+        theme={theme} 
+        categoryTree={categoryTree} 
+        renderCategoryPill={renderCategoryPill} 
+        setCategoryPillY={setCategoryPillY} 
+      />
       <FlatList
         ref={flatListRef}
         onScroll={handleScroll}
         scrollEventThrottle={16}
         ListHeaderComponent={
           <>
-            {/* Breaking News */}
-            <View style={styles.sectionRow}>
-              <Text style={[styles.sectionTitle, { color: theme.text }]}>🔥 Latest Blog</Text>
-              <TouchableOpacity 
-                style={styles.seeAllButton}
-                onPress={() => navigation.navigate('BlogList', { category: 'Latest' })}
-              >
-                <Text style={[styles.seeAll, { color: '#FF3A44' }]}>SEE ALL</Text>
-                <Ionicons name="arrow-forward" size={16} color="#FF3A44" />
-              </TouchableOpacity>
-            </View>
-            
-            <ScrollView 
-              horizontal 
-              showsHorizontalScrollIndicator={false} 
-              style={styles.breakingNewsContainer}
-              contentContainerStyle={styles.breakingNewsContent}
-            >
-              {breakingNews.map((item, idx) => (
-                <TouchableOpacity
-                  key={item.id}
-                  style={[styles.breakingCard, idx === 0 && { marginLeft: 0 }]}
-                  onPress={() => navigation.navigate('Post', { post: item })}
-                  activeOpacity={0.85}
-                >
-                  {item._embedded?.['wp:featuredmedia']?.[0]?.source_url && (
-                    <Image 
-                      source={{ uri: item._embedded['wp:featuredmedia'][0].source_url }} 
-                      style={styles.breakingImage} 
-                    />
-                  )}
-                  <View style={styles.breakingOverlay} />
-                  <View style={styles.breakingContent}>
-                    <Text style={styles.breakingTitle} numberOfLines={2}>
-                      {item.title.rendered}
-                    </Text>
-                    <View style={styles.breakingPill}>
-                      <Text style={styles.breakingPillText}>
-                        {getCategoryNames(item.categories)[0] || 'TRENDING'}
-                      </Text>
-                    </View>
-                  </View>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-
-            {/* Category Pills */}
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              style={styles.categoryPillsRow}
-              contentContainerStyle={styles.categoryPillsContent}
-              onLayout={e => setCategoryPillY(e.nativeEvent.layout.y)}
-            >
-              {categoryTree.map(cat => (
-                <React.Fragment key={cat.name}>
-                  {renderCategoryPill(cat.name)}
-                  {cat.subs.map(sub => renderCategoryPill(sub, true))}
-                </React.Fragment>
-              ))}
-            </ScrollView>
-
-            {/* Only For You */}
-            {selectedCategory === 'All' && (
-              <>
-                <View style={styles.sectionRow}>
-                  <Text style={[styles.sectionTitle, { color: theme.text }]}>✨ ONLY FOR YOU</Text>
-                  <TouchableOpacity 
-                    style={styles.seeAllButton}
-                    onPress={() => navigation.navigate('BlogList', { category: 'Academics' })}
-                  >
-                    <Text style={[styles.seeAll, { color: '#FF3A44' }]}>SEE ALL</Text>
-                    <Ionicons name="arrow-forward" size={16} color="#FF3A44" />
-                  </TouchableOpacity>
-                </View>
-                
-                <View style={styles.forYouContainer}>
-                  {onlyForYou.map(item => (
-                    <TouchableOpacity
-                      key={item.id}
-                      style={styles.forYouCard}
-                      onPress={() => navigation.navigate('Post', { post: item })}
-                      activeOpacity={0.85}
-                    >
-                      {item._embedded?.['wp:featuredmedia']?.[0]?.source_url && (
-                        <Image 
-                          source={{ uri: item._embedded['wp:featuredmedia'][0].source_url }} 
-                          style={styles.forYouImage} 
-                        />
-                      )}
-                      <View style={styles.forYouTextContainer}>
-                        <Text style={styles.forYouCategory}>KADIIR EXCLUSIVE</Text>
-                        <Text style={styles.forYouTitle} numberOfLines={2}>
-                          {item.title.rendered}
-                        </Text>
-                        <View style={styles.forYouMetaContainer}>
-                          <Ionicons name="person-circle" size={18} color="#FF3A44" />
-                          <Text style={styles.forYouMeta}>KADIIR ABDULATIF</Text>
-                        </View>
-                      </View>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              </>
-            )}
+            <HomeBreakingNews breakingNews={breakingNews} getCategoryNames={getCategoryNames} navigation={navigation} theme={theme} styles={styles} />
+            <HomeOnlyForYou onlyForYou={onlyForYou} navigation={navigation} theme={theme} styles={styles} selectedCategory={selectedCategory} />
           </>
         }
         data={displayedPosts}
@@ -398,9 +191,7 @@ export default function HomeScreen({ navigation }) {
           !loading && (
             <View style={styles.emptyContainer}>
               <Ionicons name="sad-outline" size={48} color="#FF3A44" />
-              <Text style={[styles.empty, { color: theme.text }]}>
-                NO CRAZY POSTS FOUND!
-              </Text>
+              <Text style={[styles.empty, { color: theme.text }]}>NO CRAZY POSTS FOUND!</Text>
             </View>
           )
         }
@@ -455,13 +246,13 @@ const styles = StyleSheet.create({
     marginLeft: 15,
   },
   greeting: {
-    fontSize: 15,
+    fontSize: 12,
     color: '#008000',
     fontWeight: '800',
     letterSpacing: 1,
   },
   username: {
-    fontSize: 12,
+    fontSize: 10,
     fontWeight: '900',
     color: '#FFF',
     letterSpacing: 0.5,
