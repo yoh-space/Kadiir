@@ -10,24 +10,48 @@ export default function useWordPressApi() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const fetchAllPosts = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      let allPosts = [];
+      let page = 1;
+      let totalPages = 1;
+      const perPage = 100; // WordPress max per_page
+      do {
+        const res = await axios.get(`${API_BASE}/posts`, {
+          params: { _embed: true, per_page: perPage, page },
+        });
+        if (page === 1) {
+          // Get total pages from headers
+          totalPages = parseInt(res.headers['x-wp-totalpages'] || '1', 10);
+        }
+        allPosts = allPosts.concat(res.data);
+        page++;
+      } while (page <= totalPages);
+      setPosts(allPosts);
+    } catch (err) {
+      setError(err.message || 'Error fetching posts');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   const fetchData = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const [postsRes, categoriesRes, tagsRes] = await Promise.all([
-        axios.get(`${API_BASE}/posts?_embed`), // fetch with images
-        axios.get(`${API_BASE}/categories`),
-        axios.get(`${API_BASE}/tags`),
+      await Promise.all([
+        fetchAllPosts(),
+        axios.get(`${API_BASE}/categories`).then((res) => setCategories(res.data)),
+        axios.get(`${API_BASE}/tags`).then((res) => setTags(res.data)),
       ]);
-      setPosts(postsRes.data);
-      setCategories(categoriesRes.data);
-      setTags(tagsRes.data);
     } catch (err) {
       setError(err.message || 'Error fetching data');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [fetchAllPosts]);
 
   useEffect(() => {
     fetchData();

@@ -8,6 +8,42 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFavorites } from '../components/FavoritesContext';
 import { useTheme } from './SettingScreen';
 
+// Define the category tree (should match HomeScreen)
+const categoryTree = [
+  { name: 'All', subs: [] },
+  { name: 'Academics', subs: ['Agriculture', 'Custom', 'Education', 'Gada'] },
+  { name: 'Folklore', subs: ['Mythology', 'Proverbs'] },
+  { name: 'Health', subs: ['Disease', 'Food', 'Medicine'] },
+  { name: 'Literature', subs: ['Fiction', 'History', 'Poem'] },
+  { name: 'News', subs: ['Africa', 'Ethiopia', 'World'] },
+  { name: 'Shop', subs: ['Books', 'Cloths', 'Food Shop'] },
+  { name: 'Technology', subs: ['ICT/IT'] },
+  { name: 'Entertainment', subs: [] },
+];
+
+// Helper to get all category names for a main category (including subs)
+function getAllCategoryNames(selectedName) {
+  if (selectedName === 'All') return null; // null means all posts
+  const main = categoryTree.find(cat => cat.name === selectedName);
+  if (main) {
+    return [main.name, ...main.subs];
+  }
+  // If not a main, check if it's a subcategory
+  const parent = categoryTree.find(cat => cat.subs.includes(selectedName));
+  if (parent) {
+    return [selectedName];
+  }
+  return [];
+}
+
+// Get all relevant category IDs for filtering
+function getCategoryIdsForNames(names, categories) {
+  if (!names) return null; // null means all
+  return categories
+    .filter(cat => names.includes(cat.name))
+    .map(cat => cat.id);
+}
+
 function getFeaturedImage(post) {
   // Try to get the featured image from _embedded if available
   if (post._embedded && post._embedded['wp:featuredmedia'] && post._embedded['wp:featuredmedia'][0]?.source_url) {
@@ -30,9 +66,19 @@ export default function CategoryScreen({ categoryName }) {
   const { isDark, theme } = useTheme();
   const { favoriteIds, toggleFavorite, bookmarkedPosts, toggleBookmark } = useFavorites();
 
-  // Filter posts by category name, case-insensitive
-  const category = categories.find(cat => cat.name.toLowerCase() === categoryName.toLowerCase());
-  const filteredPosts = category ? posts.filter(post => post.categories.includes(category.id)) : [];
+  // Determine which posts to show
+  let filteredPosts;
+  if (categoryName === 'All') {
+    filteredPosts = posts;
+  } else {
+    const allNames = getAllCategoryNames(categoryName);
+    if (!allNames) {
+      filteredPosts = posts;
+    } else {
+      const catIds = getCategoryIdsForNames(allNames, categories);
+      filteredPosts = posts.filter(post => post.categories.some(id => catIds.includes(id)));
+    }
+  }
 
   const renderItem = ({ item }) => {
     const isFavorite = favoriteIds.includes(item.id);
