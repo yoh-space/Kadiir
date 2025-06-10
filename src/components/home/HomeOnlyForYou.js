@@ -12,8 +12,8 @@ export default function HomeOnlyForYou({ onlyForYou, navigation, theme, styles, 
           style={styles.seeAllButton}
           onPress={() => navigation.navigate('BlogList', { category: 'Academics' })}
         >
-          <Text style={[styles.seeAll, { color: theme.color }]}>SEE ALL</Text>
-          <Ionicons name="arrow-forward" size={16} color={theme.color} />
+          <Text style={[styles.seeAll, { color: 'green' }]}>SEE ALL</Text>
+          <Ionicons name="arrow-forward" size={16} color={'green'} />
         </TouchableOpacity>
       </View>
       <View style={styles.forYouContainer}>

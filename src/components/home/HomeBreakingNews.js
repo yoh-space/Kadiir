@@ -11,8 +11,8 @@ export default function HomeBreakingNews({ breakingNews, getCategoryNames, navig
           style={styles.seeAllButton}
           onPress={() => navigation.navigate('BlogList', { category: 'Breaking News' })}
           >
-          <Text style={[styles.seeAll, { color: theme.color }]}>SEE ALL</Text>
-          <Ionicons name="arrow-forward" size={16} color={theme.color} />
+          <Text style={[styles.seeAll, { color: 'green' }]}>SEE ALL</Text>
+          <Ionicons name="arrow-forward" size={16} color={'green'} />
         </TouchableOpacity>
       </View>
       <ScrollView 
