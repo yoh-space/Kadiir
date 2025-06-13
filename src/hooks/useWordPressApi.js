@@ -3,6 +3,20 @@ import axios from 'axios';
 
 const API_BASE = 'https://kadiir.com/wp-json/wp/v2';
 
+// Helper function to decode HTML entities
+const decodeHtmlEntities = (text) => {
+  if (!text) return '';
+  return text
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#039;/g, "'")
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&#8217;/g, "'")
+    .replace(/&#[0-9]+;/g, '');
+};
+
 export default function useWordPressApi() {
   const [posts, setPosts] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -17,41 +31,78 @@ export default function useWordPressApi() {
       let allPosts = [];
       let page = 1;
       let totalPages = 1;
-      const perPage = 25; // WordPress max per_page
+      const perPage = 25;
+      
       do {
         const res = await axios.get(`${API_BASE}/posts`, {
-          params: { _embed: true, per_page: perPage, page },
+          params: { 
+            _embed: true,
+            per_page: perPage,
+            page,
+            context: 'view'
+          },
         });
+        
         if (page === 1) {
-          // Get total pages from headers
           totalPages = parseInt(res.headers['x-wp-totalpages'] || '1', 10);
         }
-        allPosts = allPosts.concat(res.data);
+        
+        const processedPosts = res.data.map(post => ({
+          ...post,
+          title: {
+            rendered: decodeHtmlEntities(post.title.rendered)
+          },
+          excerpt: {
+            rendered: decodeHtmlEntities(post.excerpt.rendered)
+          },
+          content: {
+            rendered: decodeHtmlEntities(post.content.rendered)
+          }
+        }));
+        
+        allPosts = allPosts.concat(processedPosts);
         page++;
       } while (page <= totalPages);
+      
       setPosts(allPosts);
     } catch (err) {
       setError(err.message || 'Error fetching posts');
+      console.error('API Error:', err);
     } finally {
       setLoading(false);
     }
   }, []);
 
+  const fetchCategories = useCallback(async () => {
+    try {
+      const res = await axios.get(`${API_BASE}/categories`);
+      setCategories(res.data);
+    } catch (err) {
+      console.error('Error fetching categories:', err);
+    }
+  }, []);
+
+  const fetchTags = useCallback(async () => {
+    try {
+      const res = await axios.get(`${API_BASE}/tags`);
+      setTags(res.data);
+    } catch (err) {
+      console.error('Error fetching tags:', err);
+    }
+  }, []);
+
   const fetchData = useCallback(async () => {
-    setLoading(true);
-    setError(null);
     try {
       await Promise.all([
         fetchAllPosts(),
-        axios.get(`${API_BASE}/categories`).then((res) => setCategories(res.data)),
-        axios.get(`${API_BASE}/tags`).then((res) => setTags(res.data)),
+        fetchCategories(),
+        fetchTags()
       ]);
     } catch (err) {
       setError(err.message || 'Error fetching data');
-    } finally {
-      setLoading(false);
+      console.error('Fetch error:', err);
     }
-  }, [fetchAllPosts]);
+  }, [fetchAllPosts, fetchCategories, fetchTags]);
 
   useEffect(() => {
     fetchData();

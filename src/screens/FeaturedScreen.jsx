@@ -73,7 +73,7 @@ export default function FeaturedScreen({ navigation: propNavigation }) {
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}> 
       {/* Header with improved styling */}
       <Animated.View style={[
         styles.headerContainer,
@@ -107,64 +107,69 @@ export default function FeaturedScreen({ navigation: propNavigation }) {
         </Animated.Text>
       </Animated.View>
 
-      {/* Content with enhanced card styling */}
-      <AnimatedFlatList
-        data={featuredPosts}
-        keyExtractor={item => item.id.toString()}
-        renderItem={({ item, index }) => (
-          <Animated.View style={[
-            styles.card,
-            {
-              backgroundColor: theme.cardBackground || '#fff',
-              opacity: scrollY.interpolate({
-                inputRange: [-1, 0, 100 * index, 100 * (index + 3)],
-                outputRange: [1, 1, 1, 0.7]
-              }),
-              transform: [
-                {
-                  scale: scrollY.interpolate({
-                    inputRange: [-1, 0, 100 * index, 100 * (index + 3)],
-                    outputRange: [1, 1, 1, 0.98]
-                  })
-                }
-              ]
-            }
-          ]}>
-            <BlogPostItem
-              post={item}
-              categoryNames={getCategoryNames(item.categories)}
-              onPress={() => navigation.navigate('Post', { post: item })}
+      {/* Loading indicator */}
+      {loading || refreshing ? (
+        <View style={styles.loadingContainer}>
+          <Ionicons name="star-outline" size={48} color={theme.primary || '#1db954'} style={{ marginBottom: 12 }} />
+          <Text style={[styles.loadingText, { color: theme.text }]}>Loading featured posts...</Text>
+        </View>
+      ) : (
+        <AnimatedFlatList
+          data={featuredPosts}
+          keyExtractor={item => item.id.toString()}
+          renderItem={({ item, index }) => (
+            <Animated.View style={[
+              styles.card,
+              {
+                backgroundColor: theme.cardBackground || '#fff',
+                opacity: scrollY.interpolate({
+                  inputRange: [-1, 0, 100 * index, 100 * (index + 3)],
+                  outputRange: [1, 1, 1, 0.7]
+                }),
+                transform: [
+                  {
+                    scale: scrollY.interpolate({
+                      inputRange: [-1, 0, 100 * index, 100 * (index + 3)],
+                      outputRange: [1, 1, 1, 0.98]
+                    })
+                  }
+                ]
+              }
+            ]}>
+              <BlogPostItem
+                post={item}
+                categoryNames={getCategoryNames(item.categories)}
+                onPress={() => navigation.navigate('Post', { post: item })}
+              />
+            </Animated.View>
+          )}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={[theme.primary || '#1db954']}
+              tintColor={theme.primary || '#1db954'}
+              progressBackgroundColor={theme.background}
             />
-          </Animated.View>
-        )}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            colors={[theme.primary || '#1db954']}
-            tintColor={theme.primary || '#1db954'}
-            progressBackgroundColor={theme.background}
-          />
-        }
-        contentContainerStyle={[
-          styles.content,
-          { paddingTop: 110 } // Give space for the header
-        ]}
-        ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <Ionicons name="newspaper-outline" size={60} color={theme.textSecondary || '#aaa'} />
-            <Text style={[styles.empty, { color: theme.textSecondary || '#888' }]}>
-              No featured posts yet
-            </Text>
-          </View>
-        }
-        onScroll={Animated.event(
-          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-          { useNativeDriver: true }
-        )}
-        scrollEventThrottle={16}
-        showsVerticalScrollIndicator={false}
-      />
+          }
+          contentContainerStyle={[
+            styles.content,
+            { paddingTop: 110 }
+          ]}
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <Ionicons name="newspaper-outline" size={60} color={theme.textSecondary || '#aaa'} />
+              <Text style={[styles.empty, { color: theme.textSecondary || '#888' }]}>No featured posts yet</Text>
+            </View>
+          }
+          onScroll={Animated.event(
+            [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+            { useNativeDriver: true }
+          )}
+          scrollEventThrottle={16}
+          showsVerticalScrollIndicator={false}
+        />
+      )}
     </SafeAreaView>
   );
 }
@@ -238,5 +243,17 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingTop: 120,
+  },
+  loadingText: {
+    fontSize: 16,
+    fontWeight: '500',
+    marginTop: 8,
+    letterSpacing: 0.2,
   },
 });

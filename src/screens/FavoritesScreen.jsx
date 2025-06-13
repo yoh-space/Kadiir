@@ -12,188 +12,94 @@ const AnimatedFlatList = Animated.createAnimatedComponent(RNFlatList);
 
 export default function FavoritesScreen({ navigation: propNavigation }) {
   const navigation = propNavigation || useNavigation();
-  const { favoritePosts, favoriteIds, toggleFavorite } = useFavorites();
+  const { favoritePosts } = useFavorites();
   const { isDark, theme } = useTheme();
   const [refreshing, setRefreshing] = useState(false);
-  const scrollY = new Animated.Value(0);
 
   const onRefresh = () => {
     setRefreshing(true);
-    setTimeout(() => setRefreshing(false), 1000);
+    setTimeout(() => setRefreshing(false), 600);
   };
 
-  const headerOpacity = scrollY.interpolate({
-    inputRange: [0, 50],
-    outputRange: [1, 0.9],
-    extrapolate: 'clamp',
-  });
-
-  const headerTranslateY = scrollY.interpolate({
-    inputRange: [0, 50],
-    outputRange: [0, -20],
-    extrapolate: 'clamp',
-  });
-
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }, { marginTop: Platform.OS === 'android' ? Constants.statusBarHeight : 0 }]}>
-      <Animated.View style={[
-        styles.headerContainer,
-        {
-          backgroundColor: theme.background,
-          opacity: headerOpacity,
-          transform: [{ translateY: headerTranslateY }]
-        }
-      ]}>
-        <TouchableOpacity 
-          onPress={() => navigation.goBack()} 
-          style={styles.backButton}
-          activeOpacity={0.7}
-        >
-          <Ionicons name="arrow-back" size={28} color={theme.primary || '#1db954'} />
-        </TouchableOpacity>
-        <Animated.Text style={[styles.header, { color: theme.text }]}>⭐ Your Favorites</Animated.Text>
-      </Animated.View>
-
-      <AnimatedFlatList
-        data={favoritePosts}
-        keyExtractor={item => item.id.toString()}
-        renderItem={({ item }) => (
-          <View style={[
-            styles.card, 
-            { 
-              backgroundColor: isDark ? '#2a2a2a' : '#fff',
-              borderColor: isDark ? '#444' : '#eee'
-            }
-          ]}>
+    <View style={[
+      styles.container,
+      { backgroundColor: theme.background },
+      { marginTop: Platform.OS === 'android' ? Constants.statusBarHeight : 0 }
+    ]}>
+      <Text style={[styles.header, { color: theme.text }]}>Favorite Posts</Text>
+      {favoritePosts.length === 0 ? (
+        <View style={styles.emptyContainer}>
+          <Ionicons name="heart-outline" size={60} color={isDark ? '#e74c3c' : '#bbb'} style={{ marginBottom: 16 }} />
+          <Text style={[styles.empty, { color: theme.text }]}>No favorite posts yet.</Text>
+        </View>
+      ) : (
+        <AnimatedFlatList
+          data={favoritePosts}
+          keyExtractor={item => item.id.toString()}
+          renderItem={({ item }) => (
             <BlogPostItem
               post={item}
-              categoryNames={item.categories ? item.categories.map(String) : []}
+              categoryNames={item.categories || []}
               onPress={() => navigation.navigate('Post', { post: item })}
-              isFavorite={favoriteIds.includes(item.id)}
-              onToggleFavorite={() => toggleFavorite(item)}
+              isFavorite={true}
+              style={styles.favoriteCard}
             />
-          </View>
-        )}
-        onScroll={Animated.event(
-          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-          { useNativeDriver: true }
-        )}
-        scrollEventThrottle={16}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            colors={[theme.primary || '#1db954']}
-            tintColor={theme.primary || '#1db954'}
-            progressBackgroundColor={theme.background}
-          />
-        }
-        contentContainerStyle={favoritePosts.length === 0 ? styles.emptyContainer : styles.content}
-        ListEmptyComponent={
-          <View style={styles.emptyState}>
-            <Ionicons 
-              name="heart-outline" 
-              size={64} 
-              color={isDark ? '#555' : '#ccc'} 
-              style={styles.emptyIcon}
-            />
-            <Text style={[styles.emptyTitle, { color: theme.text }]}>
-              No favorites yet
-            </Text>
-            <Text style={[styles.emptyText, { color: isDark ? '#aaa' : '#888' }]}>
-              Tap the heart icon on posts to save them here
-            </Text>
-          </View>
-        }
-        ListHeaderComponent={<View style={styles.listHeader} />}
-        ListFooterComponent={<View style={styles.listFooter} />}
-      />
-    </SafeAreaView>
+          )}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+          contentContainerStyle={{ padding: 16, paddingBottom: 32 }}
+          ListHeaderComponent={<Text style={[styles.sectionTitle, { color: theme.text, marginBottom: 8 }]}>All Favorite Posts</Text>}
+        />
+      )}
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
+  container: {
     flex: 1,
-    paddingTop: Platform.OS === 'android' ? Constants.statusBarHeight : 0,
-  },
-  headerContainer: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    zIndex: 10,
-    paddingTop: 16,
-    paddingBottom: 12,
-    paddingHorizontal: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: 'rgba(0,0,0,0.1)',
-  },
-  backButton: {
-    position: 'absolute',
-    left: 16,
-    top: 16,
-    padding: 8,
-    borderRadius: 20,
-    zIndex: 11,
+    paddingTop: 8,
+    paddingHorizontal: 0,
   },
   header: {
-    fontSize: 22,
-    fontWeight: '800',
-    textAlign: 'center',
-    letterSpacing: 0.5,
-    marginLeft: 24, // compensate for back button
-  },
-  card: {
-    borderRadius: 16,
-    padding: 16,
+    fontSize: 26,
+    fontWeight: 'bold',
     marginBottom: 16,
-    marginHorizontal: 16,
-    borderWidth: StyleSheet.hairlineWidth,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.05,
+    alignSelf: 'center',
+    marginTop: 16,
+    letterSpacing: 1.2,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginLeft: 12,
+    marginBottom: 8,
+    letterSpacing: 0.5,
+  },
+  favoriteCard: {
+    marginBottom: 16,
+    borderRadius: 14,
+    backgroundColor: 'rgba(231,76,60,0.07)',
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+    shadowColor: '#e74c3c',
+    shadowOpacity: 0.08,
     shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
     elevation: 2,
   },
-  content: {
-    paddingTop: 80,
-    paddingBottom: 32,
-  },
   emptyContainer: {
-    flexGrow: 1,
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 80,
+    paddingHorizontal: 24,
+    paddingTop: 60,
   },
-  emptyState: {
-    alignItems: 'center',
-    paddingHorizontal: 40,
-  },
-  emptyIcon: {
-    marginBottom: 16,
-    opacity: 0.6,
-  },
-  emptyTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  emptyText: {
+  empty: {
+    alignSelf: 'center',
+    marginTop: 8,
     fontSize: 16,
+    color: '#888',
     textAlign: 'center',
-    lineHeight: 24,
-    opacity: 0.8,
-  },
-  listHeader: {
-    height: 80,
-  },
-  listFooter: {
-    height: 32,
   },
 });

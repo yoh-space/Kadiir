@@ -6,6 +6,8 @@ import { useNavigation } from '@react-navigation/native';
 import { useTheme } from './SettingScreen';
 import { useFavorites } from '../components/FavoritesContext';
 import { StatusBar } from 'expo-status-bar';
+import Constants from 'expo-constants';
+import { Ionicons } from '@expo/vector-icons';
 
 function BookmarkedScreen() {
   const navigation = useNavigation();
@@ -20,7 +22,7 @@ function BookmarkedScreen() {
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.background }]}> 
+    <View style={[styles.container, { backgroundColor: theme.background }, { marginTop: Platform.OS === 'android' ? Constants.statusBarHeight : 0 }]}>
       <Text style={[styles.header, { color: theme.text }]}>Bookmarked Posts</Text>
       {bookmarkedPosts.length === 0 ? (
         <View style={styles.emptyContainer}>
@@ -54,7 +56,6 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: 8,
     paddingHorizontal: 0,
-    marginTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
   },
   header: {
     fontSize: 26,
