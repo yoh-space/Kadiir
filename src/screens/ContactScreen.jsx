@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, StatusBar } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 
@@ -8,6 +8,7 @@ export default function ContactScreen() {
 
   return (
     <View style={styles.container}>
+      <StatusBar backgroundColor={'whitesmoke'} barStyle={'dark-content'} animated={true} />
       <TouchableOpacity onPress={() => navigation.goBack()} style={{ position: 'absolute', top: 40, left: 20, zIndex: 10 }}>
         <Ionicons name="arrow-back" size={28} color="#1db954" />
       </TouchableOpacity>

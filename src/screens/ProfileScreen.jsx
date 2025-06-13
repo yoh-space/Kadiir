@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, Animated } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, Animated, StatusBar } from 'react-native';
 import { useTheme } from './SettingScreen';
 import { LinearGradient } from 'expo-linear-gradient';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -27,7 +27,8 @@ export default function ProfileScreen() {
   });
 
   return (
-    <View style={{ flex: 1, backgroundColor: theme.background }}>
+    <View style={{ flex: 1, backgroundColor: isDark ? '#181a20' : 'whitesmoke' }}>
+      <StatusBar backgroundColor={isDark ? '#181a20' : 'whitesmoke'} barStyle={isDark ? 'light-content' : 'dark-content'} animated={true} />
       <ScrollView 
         contentContainerStyle={styles.container}
         scrollEventThrottle={16}

@@ -1,95 +1,77 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '../screens/SettingScreen';
+import { decode } from 'he';
 
 function getFeaturedImage(post) {
-  if (post._embedded && post._embedded['wp:featuredmedia'] && post._embedded['wp:featuredmedia'][0]?.source_url) {
-    return post._embedded['wp:featuredmedia'][0].source_url;
+  try {
+    return post?._embedded?.['wp:featuredmedia']?.[0]?.source_url ?? null;
+  } catch {
+    return null;
   }
-  return null;
 }
 
-function decodeHtmlEntities(text) {
-  if (!text) return '';
-
-  // Create a comprehensive map of all HTML entities we need to handle
-  const entityMap = {
-    // Numeric entities (decimal)
-    '&#39;': "'",
-    '&#34;': '"',
-    '&#38;': '&',
-    '&#60;': '<',
-    '&#62;': '>',
-    '&#160;': ' ',
-    '&#8211;': '–',
-    '&#8212;': '—',
-    '&#8216;': '‘',
-    '&#8217;': '’',
-    '&#8220;': '“',
-    '&#8221;': '”',
-    '&#8230;': '…',
-    
-    // Named entities
-    '&quot;': '"',
-    '&apos;': "'",
-    '&amp;': '&',
-    '&lt;': '<',
-    '&gt;': '>',
-    '&nbsp;': ' ',
-    '&rsquo;': '’',
-    '&lsquo;': '‘',
-    '&ldquo;': '“',
-    '&rdquo;': '”',
-    '&hellip;': '…',
-    '&mdash;': '—',
-    '&ndash;': '–'
-  };
-
-  // First pass: replace all known entities
-  let decodedText = text.replace(
-    /(&#\d+;|&[a-z]+;)/gi, 
-    (match) => entityMap[match] || match
-  );
-
-  // Second pass: handle any remaining numeric entities
-  decodedText = decodedText
-    .replace(/&#(\d+);/g, (match, dec) => String.fromCharCode(dec))
-    .replace(/&#x([0-9a-fA-F]+);/g, (match, hex) => String.fromCharCode(parseInt(hex, 16)));
-
-  return decodedText;
-}
-const testText = "namichi tokko Addababayii Soqraaxis barattoota isaa wajjin itti wal&#8217;argu fiigaa dhufe. Fiigichi somba isaa keessaa baasuu geessee jirti. Arganaa, afuurri isaa ciccitaa, sagalee isaa oli fuudhee, &#8220;Barsiisaa, waayee namticha beektan tokkoo oduu ajaa&#8217;ibsiisaan amma dhagahe. Waanan dhagahe kana utuun isinitti himee, dhugaa Waaqaa waanticha hin&#8217;amantan,&#8221; jedheen.";
-
-console.log("Original:", testText);
-console.log("Decoded:", decodeHtmlEntities(testText));
-
-
-function stripHtml(html) {
-  if (!html) return '';
-  // Remove HTML tags first
-  let cleanText = html.replace(/<[^>]+>/g, '');
-  // Decode HTML entities
-  cleanText = decodeHtmlEntities(cleanText);
-  // Clean up whitespace
-  cleanText = cleanText.replace(/\s+/g, ' ').trim();
-  return cleanText;
-}
-
-export default function BlogPostItem({ post, categoryNames, onPress, isFavorite, onToggleFavorite, isBookmarked, onToggleBookmark }) {
-  const imageUrl = getFeaturedImage(post);
+export default function BlogPostItem({
+  post,
+  categoryNames = [],
+  onPress,
+  isFavorite,
+  onToggleFavorite,
+  isBookmarked,
+  onToggleBookmark,
+}) {
   const { isDark } = useTheme();
+  const imageUrl = useMemo(() => getFeaturedImage(post), [post]);
   
+  // Memoize processed text to avoid recomputing on every render
+  const processedTitle = useMemo(() => {
+    if (!post?.title?.rendered) return '';
+    try {
+      return decode(post.title.rendered);
+    } catch {
+      return post.title.rendered;
+    }
+  }, [post]);
+
+  const processedExcerpt = useMemo(() => {
+    if (!post?.excerpt?.rendered) return '';
+    try {
+      const noTags = post.excerpt.rendered.replace(/<[^>]+>/g, '');
+      return decode(noTags).replace(/\s+/g, ' ').trim();
+    } catch {
+      return post.excerpt.rendered;
+    }
+  }, [post]);
+
+  const formattedDate = useMemo(() => {
+    try {
+      return new Date(post.date).toLocaleDateString();
+    } catch {
+      return '';
+    }
+  }, [post.date]);
+
   return (
-    <View style={[styles.card, { backgroundColor: isDark ? '#181a20' : 'whitesmoke' }]}> 
+    <View style={[styles.card, { backgroundColor: isDark ? '#181a20' : 'whitesmoke' }]}>
       {imageUrl && (
-        <Image source={{ uri: imageUrl }} style={styles.image} resizeMode="cover" />
+        <Image 
+          source={{ uri: imageUrl }} 
+          style={styles.image} 
+          resizeMode="cover"
+          onError={() => console.warn('Failed to load image')}
+        />
       )}
+      
       <View style={styles.topRightBtns}>
         <TouchableOpacity
-          style={[styles.favoriteBtn, { backgroundColor: isDark ? 'rgba(30,30,30,0.85)' : 'rgba(255,255,255,0.85)' }]}
+          style={[
+            styles.iconBtn,
+            { backgroundColor: isDark ? 'rgba(30,30,30,0.85)' : 'rgba(255,255,255,0.85)' },
+          ]}
           onPress={onToggleFavorite}
+          accessibilityLabel={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+          accessibilityRole="button"
         >
           <Ionicons
             name={isFavorite ? 'heart' : 'heart-outline'}
@@ -97,9 +79,15 @@ export default function BlogPostItem({ post, categoryNames, onPress, isFavorite,
             color={isFavorite ? '#e74c3c' : '#bbb'}
           />
         </TouchableOpacity>
+        
         <TouchableOpacity
-          style={[styles.bookmarkBtn, { backgroundColor: isDark ? 'rgba(30,30,30,0.85)' : 'rgba(255,255,255,0.85)' }]}
+          style={[
+            styles.iconBtn,
+            { backgroundColor: isDark ? 'rgba(30,30,30,0.85)' : 'rgba(255,255,255,0.85)' },
+          ]}
           onPress={onToggleBookmark}
+          accessibilityLabel={isBookmarked ? 'Remove bookmark' : 'Add bookmark'}
+          accessibilityRole="button"
         >
           <MaterialCommunityIcons
             name={isBookmarked ? 'bookmark' : 'bookmark-outline'}
@@ -108,10 +96,28 @@ export default function BlogPostItem({ post, categoryNames, onPress, isFavorite,
           />
         </TouchableOpacity>
       </View>
-      <Text style={[styles.title, { color: isDark ? '#fff' : '#222' }]}>{decodeHtmlEntities(post.title.rendered)}</Text>
-      <Text style={[styles.meta, { color: isDark ? '#aaa' : '#888' }]}>{new Date(post.date).toLocaleDateString()} • {categoryNames.join(', ')}</Text>
-      <Text style={[styles.excerpt, { color: isDark ? '#eee' : '#444' }]} numberOfLines={3}>{stripHtml(post.excerpt.rendered)}</Text>
-      <TouchableOpacity style={[styles.readMoreBtn, { backgroundColor: isDark ? '#1db954' : 'darkgreen' }]} onPress={onPress}>
+
+      <Text style={[styles.title, { color: isDark ? '#fff' : '#000' }]}>
+        {processedTitle}
+      </Text>
+
+      <Text style={[styles.meta, { color: isDark ? '#aaa' : '#888' }]}>
+        {formattedDate} • {categoryNames.join(', ')}
+      </Text>
+
+      <Text 
+        style={[styles.excerpt, { color: isDark ? '#eee' : '#444' }]} 
+        numberOfLines={3}
+      >
+        {processedExcerpt}
+      </Text>
+
+      <TouchableOpacity
+        style={[styles.readMoreBtn, { backgroundColor: isDark ? '#1db954' : 'darkgreen' }]}
+        onPress={onPress}
+        accessibilityLabel="Read more"
+        accessibilityRole="button"
+      >
         <Text style={styles.readMoreText}>Read More</Text>
       </TouchableOpacity>
     </View>
@@ -128,6 +134,7 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 2 },
     elevation: 2,
+    minHeight: 200, // Ensure consistent height
   },
   image: {
     width: '100%',
@@ -143,33 +150,30 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     zIndex: 2,
   },
-  favoriteBtn: {
+  iconBtn: {
     borderRadius: 20,
-    padding: 4,
-    marginRight: 4,
-  },
-  bookmarkBtn: {
-    borderRadius: 20,
-    padding: 4,
+    padding: 8,
+    marginLeft: 8,
   },
   title: {
     fontSize: 19,
     fontWeight: 'bold',
-    marginBottom: 4,
+    marginBottom: 8,
+    marginTop: 8,
   },
   meta: {
     fontSize: 13,
-    marginBottom: 8,
+    marginBottom: 12,
   },
   excerpt: {
     fontSize: 15,
-    marginBottom: 12,
+    marginBottom: 16,
     lineHeight: 22,
   },
   readMoreBtn: {
     alignSelf: 'flex-start',
     borderRadius: 6,
-    paddingVertical: 6,
+    paddingVertical: 8,
     paddingHorizontal: 16,
   },
   readMoreText: {

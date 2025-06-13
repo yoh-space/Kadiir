@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList, DrawerItem } from '@react-navigation/drawer';
-import { View, Text, Image, StyleSheet, TouchableOpacity, Animated, Easing, Dimensions, ScrollView } from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacity, Animated, Easing, Dimensions, ScrollView, StatusBar } from 'react-native';
 import MainTabNavigator from './MainTabNavigator';
 import SettingScreen from '../screens/SettingScreen';
 import AboutScreen from '../screens/AboutScreen';
@@ -64,144 +64,147 @@ function CustomDrawerContent(props) {
   };
 
   return (
-    <DrawerContentScrollView 
-      {...props} 
-      contentContainerStyle={styles.scrollContainer}
-      scrollEnabled={true}
-    >
-      <View style={styles.drawerContent}>
-        {/* Animated Header */}
-        <Animated.View style={[styles.drawerHeader, {
-          transform: [{
-            translateX: animationValues[0].interpolate({
-              inputRange: [0, 1],
-              outputRange: [-100, 0]
-            })
-          }]
-        }]}>
-          <View style={styles.avatarContainer}>
-            <Image 
-              source={require('../assets/image.png')} 
-              style={styles.avatar} 
-            />
-            <View style={styles.onlineIndicator} />
-          </View>
-          <View style={{ marginLeft: 16 }}>
-            <Text style={styles.drawerName}>Kadiir Blog</Text>
-            <Text style={styles.drawerEmail}>info@kadiir.com</Text>
-          </View>
-          <TouchableOpacity 
-            style={styles.closeButton}
-            onPress={() => props.navigation.closeDrawer()}
-            activeOpacity={0.7}
-          >
-            <Feather name="x" size={width < 400 ? 20 : 24} color="#E0E0E0" />
-          </TouchableOpacity>
-        </Animated.View>
-
-        {/* Main Options */}
-        <View style={styles.drawerSection}>
-          {props.state.routes.slice(0, 5).map((route, index) => {
-            const focused = activeRoute === route.name;
-            return (
-              <AnimatedDrawerItem
-                key={route.key}
-                label={route.name}
-                labelStyle={[
-                  styles.drawerLabel,
-                  focused && styles.activeLabel
-                ]}
-                icon={() => renderIcon(route.name, focused)}
-                onPress={() => handlePress(route.name, route.name)}
-                style={[
-                  styles.drawerItem,
-                  focused && styles.activeItem,
-                  {
-                    transform: [{
-                      translateX: animationValues[index].interpolate({
-                        inputRange: [0, 1],
-                        outputRange: [-50, 0]
-                      })
-                    }],
-                    opacity: animationValues[index]
-                  }
-                ]}
+    <>
+      <StatusBar backgroundColor="#1E1E2D" barStyle="light-content" animated={true} />
+      <DrawerContentScrollView 
+        {...props} 
+        contentContainerStyle={styles.scrollContainer}
+        scrollEnabled={true}
+      >
+        <View style={styles.drawerContent}>
+          {/* Animated Header */}
+          <Animated.View style={[styles.drawerHeader, {
+            transform: [{
+              translateX: animationValues[0].interpolate({
+                inputRange: [0, 1],
+                outputRange: [-100, 0]
+              })
+            }]
+          }]}>
+            <View style={styles.avatarContainer}>
+              <Image 
+                source={require('../assets/image.png')} 
+                style={styles.avatar} 
               />
-            );
-          })}
-        </View>
-
-        {/* Divider with animation */}
-        <Animated.View style={[styles.divider, {
-          opacity: animationValues[5],
-          transform: [{
-            scaleX: animationValues[5].interpolate({
-              inputRange: [0, 1],
-              outputRange: [0, 1]
-            })
-          }]
-        }]} />
-
-        {/* Other Options */}
-        <View style={styles.drawerSection}>
-          {props.state.routes.slice(5).map((route, index) => {
-            const focused = activeRoute === route.name;
-            const animIndex = index + 5;
-            return (
-              <AnimatedDrawerItem
-                key={route.key}
-                label={route.name}
-                labelStyle={[
-                  styles.drawerLabel,
-                  focused && styles.activeLabel
-                ]}
-                icon={() => renderIcon(route.name, focused)}
-                onPress={() => handlePress(route.name, route.name)}
-                style={[
-                  styles.drawerItem,
-                  focused && styles.activeItem,
-                  {
-                    transform: [{
-                      translateX: animationValues[animIndex].interpolate({
-                        inputRange: [0, 1],
-                        outputRange: [-50, 0]
-                      })
-                    }],
-                    opacity: animationValues[animIndex]
-                  }
-                ]}
-              />
-            );
-          })}
-        </View>
-
-        {/* Logout at the bottom */}
-        <Animated.View style={[styles.logoutSection, {
-          opacity: animationValues[animationValues.length - 1],
-          transform: [{
-            translateY: animationValues[animationValues.length - 1].interpolate({
-              inputRange: [0, 1],
-              outputRange: [50, 0]
-            })
-          }]
-        }]}>
-          <TouchableOpacity 
-            style={styles.logoutButton}
-            onPress={() => {
-              Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-              // Add logout logic here
-            }}
-            activeOpacity={0.6}
-          >
-            <MaterialIcons name="logout" size={width < 400 ? 20 : 24} color="#FF6B6B" />
-            <Text style={styles.logoutText}>Logout</Text>
-            <View style={styles.logoutArrow}>
-              <Feather name="arrow-right" size={width < 400 ? 16 : 20} color="#FF6B6B" />
+              <View style={styles.onlineIndicator} />
             </View>
-          </TouchableOpacity>
-        </Animated.View>
-      </View>
-    </DrawerContentScrollView>
+            <View style={{ marginLeft: 16 }}>
+              <Text style={styles.drawerName}>Kadiir Blog</Text>
+              <Text style={styles.drawerEmail}>info@kadiir.com</Text>
+            </View>
+            <TouchableOpacity 
+              style={styles.closeButton}
+              onPress={() => props.navigation.closeDrawer()}
+              activeOpacity={0.7}
+            >
+              <Feather name="x" size={width < 400 ? 20 : 24} color="#E0E0E0" />
+            </TouchableOpacity>
+          </Animated.View>
+
+          {/* Main Options */}
+          <View style={styles.drawerSection}>
+            {props.state.routes.slice(0, 5).map((route, index) => {
+              const focused = activeRoute === route.name;
+              return (
+                <AnimatedDrawerItem
+                  key={route.key}
+                  label={route.name}
+                  labelStyle={[
+                    styles.drawerLabel,
+                    focused && styles.activeLabel
+                  ]}
+                  icon={() => renderIcon(route.name, focused)}
+                  onPress={() => handlePress(route.name, route.name)}
+                  style={[
+                    styles.drawerItem,
+                    focused && styles.activeItem,
+                    {
+                      transform: [{
+                        translateX: animationValues[index].interpolate({
+                          inputRange: [0, 1],
+                          outputRange: [-50, 0]
+                        })
+                      }],
+                      opacity: animationValues[index]
+                    }
+                  ]}
+                />
+              );
+            })}
+          </View>
+
+          {/* Divider with animation */}
+          <Animated.View style={[styles.divider, {
+            opacity: animationValues[5],
+            transform: [{
+              scaleX: animationValues[5].interpolate({
+                inputRange: [0, 1],
+                outputRange: [0, 1]
+              })
+            }]
+          }]} />
+
+          {/* Other Options */}
+          <View style={styles.drawerSection}>
+            {props.state.routes.slice(5).map((route, index) => {
+              const focused = activeRoute === route.name;
+              const animIndex = index + 5;
+              return (
+                <AnimatedDrawerItem
+                  key={route.key}
+                  label={route.name}
+                  labelStyle={[
+                    styles.drawerLabel,
+                    focused && styles.activeLabel
+                  ]}
+                  icon={() => renderIcon(route.name, focused)}
+                  onPress={() => handlePress(route.name, route.name)}
+                  style={[
+                    styles.drawerItem,
+                    focused && styles.activeItem,
+                    {
+                      transform: [{
+                        translateX: animationValues[animIndex].interpolate({
+                          inputRange: [0, 1],
+                          outputRange: [-50, 0]
+                        })
+                      }],
+                      opacity: animationValues[animIndex]
+                    }
+                  ]}
+                />
+              );
+            })}
+          </View>
+
+          {/* Logout at the bottom */}
+          <Animated.View style={[styles.logoutSection, {
+            opacity: animationValues[animationValues.length - 1],
+            transform: [{
+              translateY: animationValues[animationValues.length - 1].interpolate({
+                inputRange: [0, 1],
+                outputRange: [50, 0]
+              })
+            }]
+          }]}>
+            <TouchableOpacity 
+              style={styles.logoutButton}
+              onPress={() => {
+                Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+                // Add logout logic here
+              }}
+              activeOpacity={0.6}
+            >
+              <MaterialIcons name="logout" size={width < 400 ? 20 : 24} color="#FF6B6B" />
+              <Text style={styles.logoutText}>Logout</Text>
+              <View style={styles.logoutArrow}>
+                <Feather name="arrow-right" size={width < 400 ? 16 : 20} color="#FF6B6B" />
+              </View>
+            </TouchableOpacity>
+          </Animated.View>
+        </View>
+      </DrawerContentScrollView>
+    </>
   );
 }
 
@@ -226,7 +229,7 @@ export default function AppDrawerNavigator() {
         swipeEnabled: true,
       }}
     >
-      <Drawer.Screen name="Home" component={MainTabNavigator} />
+      <Drawer.Screen name="MainTabs" component={MainTabNavigator} />
       <Drawer.Screen name="Favorites" component={require('../screens/FavoritesScreen').default} />
       <Drawer.Screen name="Featured" component={require('../screens/FeaturedScreen').default} />
       <Drawer.Screen name="Profile" component={require('../screens/ProfileScreen').default} />
@@ -240,7 +243,7 @@ export default function AppDrawerNavigator() {
 
 const styles = StyleSheet.create({
   scrollContainer: {
-    flexGrow: 1,
+    height:'100%',
     backgroundColor: '#1E1E2D',
   },
   drawerContent: {

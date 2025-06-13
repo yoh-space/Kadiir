@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { View, StatusBar } from 'react-native';
 import { StatusBar as ExpoStatusBar } from 'expo-status-bar';
-import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
+import { NavigationContainer } from '@react-navigation/native';
 
 import RootStackNavigator from './src/components/RootStackNavigator';
 import FavoritesProvider from './src/components/FavoritesContext';
@@ -26,17 +25,8 @@ const CustomStatusBar = () => {
 export default function App() {
   const [showSplash, setShowSplash] = useState(true);
 
-  useEffect(() => {
-    (async () => {
-      const seen = await AsyncStorage.getItem('hasSeenSplash');
-      if (seen) setShowSplash(false);
-    })();
-  }, []);
-
-  const handleSplashDone = async () => {
-    await AsyncStorage.setItem('hasSeenSplash', 'true');
-    setShowSplash(false);
-  };
+  // Remove timer logic. Only hide splash when user presses Get Started
+  const handleSplashDone = () => setShowSplash(false);
 
   if (showSplash) {
     return <SplashScreen onDone={handleSplashDone} />;

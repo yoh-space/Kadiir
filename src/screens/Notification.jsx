@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { SafeAreaView, Text, View, TouchableOpacity } from 'react-native';
+import { SafeAreaView, Text, View, TouchableOpacity, StatusBar } from 'react-native';
 import { useTheme } from './SettingScreen'; // Adjust the import path as necessary
 import useWordPressApi from '../hooks/useWordPressApi';
 import { Ionicons } from '@expo/vector-icons';
@@ -44,6 +44,7 @@ export default function Notification({ navigation }) {
 
     return (
         <SafeAreaView style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'center', backgroundColor: theme.background }}>
+            <StatusBar backgroundColor={theme.background} barStyle={theme.dark ? 'light-content' : 'dark-content'} animated={true} />
             {newPosts.length > 0 ? (
                 <View style={{ marginTop: 30, alignItems: 'center' }}>
                     <Ionicons name="notifications" size={48} color="#1db954" />

@@ -1,5 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import {TouchableOpacity,Animated, View, FlatList, Text, StyleSheet, RefreshControl, Platform, StatusBar as RNStatusBar } from 'react-native';
+import {
+  TouchableOpacity,
+  Animated,
+  View,
+  FlatList,
+  Text,
+  StyleSheet,
+  RefreshControl,
+  Platform,
+  StatusBar as RNStatusBar,
+  Dimensions
+} from 'react-native';
 import BlogPostItem from '../components/BlogPostItem';
 import useWordPressApi from '../hooks/useWordPressApi';
 import { useNavigation } from '@react-navigation/native';
@@ -7,27 +18,44 @@ import { useTheme } from './SettingScreen';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Constants from 'expo-constants';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 
-export default function FeaturedScreen({navigation: propNavigation}) {
+const { width } = Dimensions.get('window');
+
+export default function FeaturedScreen({ navigation: propNavigation }) {
   const navigation = propNavigation || useNavigation();
   const { posts, loading, getCategoryNames } = useWordPressApi();
   const { theme } = useTheme();
   const [featuredPosts, setFeaturedPosts] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
-    const scrollY = new Animated.Value(0);
-  
+  const scrollY = new Animated.Value(0);
+  const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
 
+
+  // Enhanced header animation
   const headerOpacity = scrollY.interpolate({
-    inputRange: [0, 50],
+    inputRange: [0, 80],
+    outputRange: [1, 0.95],
+    extrapolate: 'clamp',
+  });
+
+  const headerTranslateY = scrollY.interpolate({
+    inputRange: [0, 80],
+    outputRange: [0, -10],
+    extrapolate: 'clamp',
+  });
+
+  const headerHeight = scrollY.interpolate({
+    inputRange: [0, 80],
+    outputRange: [100, 70],
+    extrapolate: 'clamp',
+  });
+
+  const titleScale = scrollY.interpolate({
+    inputRange: [0, 80],
     outputRange: [1, 0.9],
     extrapolate: 'clamp',
   });
-    const headerTranslateY = scrollY.interpolate({
-    inputRange: [0, 50],
-    outputRange: [0, -20],
-    extrapolate: 'clamp',
-  });
-
 
   useEffect(() => {
     const featured = posts.filter(
@@ -45,103 +73,170 @@ export default function FeaturedScreen({navigation: propNavigation}) {
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.background, marginTop: RNStatusBar.currentHeight || 0 }]}>
-    <Animated.View style={[
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
+      {/* Header with improved styling */}
+      <Animated.View style={[
         styles.headerContainer,
         {
-          backgroundColor: theme.background,
+          backgroundColor: theme.headerBackground || theme.background,
           opacity: headerOpacity,
-          transform: [{ translateY: headerTranslateY }]
+          transform: [{ translateY: headerTranslateY }],
+          borderBottomColor: theme.borderColor || 'rgba(0,0,0,0.08)',
         }
       ]}>
-        <TouchableOpacity 
-          onPress={() => navigation.goBack()} 
-          style={styles.backButton}
-          activeOpacity={0.7}
+        <LinearGradient
+          colors={['rgba(255,255,255,0.8)', 'transparent']}
+          style={styles.headerGradient}
+          pointerEvents="none"
+        />
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={[styles.backButton, { backgroundColor: theme.cardBackground || 'rgba(255,255,255,0.9)' }]}
+          activeOpacity={0.6}
         >
-          <Ionicons name="arrow-back" size={28} color={theme.primary || '#1db954'} />
+          <Ionicons name="arrow-back" size={24} color={theme.primary || '#1db954'} />
         </TouchableOpacity>
-        <Animated.Text style={[styles.header, { color: theme.text }]}> Featured Posts</Animated.Text>
-      </Animated.View><FlatList
+        <Animated.Text style={[
+          styles.header,
+          {
+            color: theme.text,
+            transform: [{ scale: titleScale }]
+          }
+        ]}>
+          Featured Posts
+        </Animated.Text>
+      </Animated.View>
+
+      {/* Content with enhanced card styling */}
+      <AnimatedFlatList
         data={featuredPosts}
         keyExtractor={item => item.id.toString()}
-        renderItem={({ item }) => (
-          <View style={styles.card}>
+        renderItem={({ item, index }) => (
+          <Animated.View style={[
+            styles.card,
+            {
+              backgroundColor: theme.cardBackground || '#fff',
+              opacity: scrollY.interpolate({
+                inputRange: [-1, 0, 100 * index, 100 * (index + 3)],
+                outputRange: [1, 1, 1, 0.7]
+              }),
+              transform: [
+                {
+                  scale: scrollY.interpolate({
+                    inputRange: [-1, 0, 100 * index, 100 * (index + 3)],
+                    outputRange: [1, 1, 1, 0.98]
+                  })
+                }
+              ]
+            }
+          ]}>
             <BlogPostItem
               post={item}
               categoryNames={getCategoryNames(item.categories)}
               onPress={() => navigation.navigate('Post', { post: item })}
             />
-          </View>
+          </Animated.View>
         )}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            colors={['#0af']}
-            tintColor={theme.text}
+            colors={[theme.primary || '#1db954']}
+            tintColor={theme.primary || '#1db954'}
+            progressBackgroundColor={theme.background}
           />
         }
-        contentContainerStyle={styles.content}
-        ListEmptyComponent={<Text style={styles.empty}>No featured posts yet.</Text>}
+        contentContainerStyle={[
+          styles.content,
+          { paddingTop: 110 } // Give space for the header
+        ]}
+        ListEmptyComponent={
+          <View style={styles.emptyContainer}>
+            <Ionicons name="newspaper-outline" size={60} color={theme.textSecondary || '#aaa'} />
+            <Text style={[styles.empty, { color: theme.textSecondary || '#888' }]}>
+              No featured posts yet
+            </Text>
+          </View>
+        }
+        onScroll={Animated.event(
+          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+          { useNativeDriver: true }
+        )}
+        scrollEventThrottle={16}
+        showsVerticalScrollIndicator={false}
       />
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    marginTop: Platform.OS === 'android' ? Constants.statusBarHeight : 0,
     flex: 1,
   },
-  header: {
-    fontSize: 24,
-    fontWeight: '700',
-    textAlign: 'center',
-    marginBottom: 12,
-    marginTop: 8,
-  },
-    headerContainer: {
+  headerContainer: {
     position: 'absolute',
-    top: 0,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 3,
+    minHeight: 70, // Use minHeight instead of height for static style
+    width: '100%',
+    zIndex: 10,
+  },
+  headerGradient: {
+    position: 'absolute',
     left: 0,
     right: 0,
-    zIndex: 10,
-    paddingTop: 16,
-    paddingBottom: 12,
-    paddingHorizontal: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: 'rgba(0,0,0,0.1)',
+    top: 0,
+    height: '150%',
+  },
+  header: {
+    marginTop: Platform.OS === 'android' ? 15 : 0,
+    fontSize: 28,
+    fontWeight: '800',
+    marginBottom: 8,
+    textAlign: 'center',
+    letterSpacing: -0.5,
   },
   card: {
     backgroundColor: '#fff',
-    borderRadius: 12,
-    marginBottom: 12,
-    padding: 8,
-    elevation: 3, // Android
-    shadowColor: '#000', // iOS
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    borderRadius: 16,
+    marginBottom: 16,
+    padding: 16,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    marginHorizontal: 16,
   },
   content: {
-    paddingHorizontal: 16,
     paddingBottom: 32,
   },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingTop: 100,
+  },
   empty: {
-    alignSelf: 'center',
-    color: '#888',
-    marginTop: 40,
-    fontSize: 16,
+    marginTop: 16,
+    fontSize: 18,
+    fontWeight: '500',
   },
   backButton: {
     position: 'absolute',
-    left: 15,
-    top: 16,
+    left: 24,
+    bottom: 16,
     padding: 8,
-    borderRadius: 20,
+    borderRadius: 12,
     zIndex: 11,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
 });

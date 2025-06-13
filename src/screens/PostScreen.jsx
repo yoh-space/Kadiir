@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, ScrollView, StyleSheet, Image, SafeAreaView } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, Image, SafeAreaView, StatusBar } from 'react-native';
 import RelatedPost from './RelatedPost';
 import { useTheme } from './SettingScreen';
 
@@ -69,69 +69,72 @@ export default function PostScreen({ route }) {
   });
 
   return (
-    <SafeAreaView style={themeStyles.container}>
-      <ScrollView 
-        contentContainerStyle={styles.content}
-        showsVerticalScrollIndicator={false}
-      >
-        {imageUrl && (
-          <View style={styles.imageContainer}>
-            <Image 
-              source={{ uri: imageUrl }} 
-              style={styles.image} 
-              resizeMode="cover"
-            />
-            <View style={[styles.imageOverlay, { 
-              backgroundColor: isDark ? 'rgba(0,0,0,0.3)' : 'rgba(0,0,0,0.05)' 
-            }]} />
+    <View style={{ flex: 1, backgroundColor: isDark ? '#181a20' : 'whitesmoke' }}>
+      <StatusBar backgroundColor={isDark ? '#181a20' : 'whitesmoke'} barStyle={isDark ? 'light-content' : 'dark-content'} animated={true} />
+      <SafeAreaView style={themeStyles.container}>
+        <ScrollView 
+          contentContainerStyle={styles.content}
+          showsVerticalScrollIndicator={false}
+        >
+          {imageUrl && (
+            <View style={styles.imageContainer}>
+              <Image 
+                source={{ uri: imageUrl }} 
+                style={styles.image} 
+                resizeMode="cover"
+              />
+              <View style={[styles.imageOverlay, { 
+                backgroundColor: isDark ? 'rgba(0,0,0,0.3)' : 'rgba(0,0,0,0.05)' 
+              }]} />
+            </View>
+          )}
+          
+          <View style={[styles.textContent, themeStyles.textContent]}>
+            <Text style={[styles.title, themeStyles.title]}>{post.title.rendered}</Text>
+            
+            <View style={styles.metaContainer}>
+              <Text style={[styles.date, themeStyles.metaText]}>{new Date(post.date).toLocaleDateString()}</Text>
+              <View style={[styles.dotSeparator, themeStyles.dotSeparator]} />
+              <Text style={[styles.readTime, themeStyles.metaText]}>5 min read</Text>
+            </View>
+            
+            <View style={[styles.divider, themeStyles.divider]} />
+            
+            <Text style={[styles.body, themeStyles.body]}>
+              {content.replace(/<p>|<\/p>/gi, '\n').replace(/<[^>]+>/g, '').replace(/&[a-z]+;/gi, '').replace(/\n+/g, '\n').trim()}
+            </Text>
           </View>
-        )}
-        
-        <View style={[styles.textContent, themeStyles.textContent]}>
-          <Text style={[styles.title, themeStyles.title]}>{post.title.rendered}</Text>
-          
-          <View style={styles.metaContainer}>
-            <Text style={[styles.date, themeStyles.metaText]}>{new Date(post.date).toLocaleDateString()}</Text>
-            <View style={[styles.dotSeparator, themeStyles.dotSeparator]} />
-            <Text style={[styles.readTime, themeStyles.metaText]}>5 min read</Text>
-          </View>
-          
-          <View style={[styles.divider, themeStyles.divider]} />
-          
-          <Text style={[styles.body, themeStyles.body]}>
-            {content.replace(/<p>|<\/p>/gi, '\n').replace(/<[^>]+>/g, '').replace(/&[a-z]+;/gi, '').replace(/\n+/g, '\n').trim()}
-          </Text>
-        </View>
 
-        {/* Related Posts Section */}
-        <RelatedPost post={post} onPressPost={item => {
-          if (item && item.id) {
-            // Navigation logic here
-          }
-        }} />
+          {/* Related Posts Section */}
+          <RelatedPost post={post} onPressPost={item => {
+            if (item && item.id) {
+              // Navigation logic here
+            }
+          }} />
 
-        {/* Comment Section */}
-        <View style={[styles.commentSection, themeStyles.commentSection]}>
-          <Text style={[styles.commentHeader, themeStyles.commentHeader]}>Comments</Text>
-          
-          <View style={[styles.commentBox, themeStyles.commentBox]}>
-            <Text style={[styles.commentAuthor, themeStyles.commentAuthor]}>Jane Doe</Text>
-            <Text style={[styles.commentMeta, themeStyles.commentMeta]}>2 days ago</Text>
-            <Text style={[styles.commentText, themeStyles.commentText]}>Great post! Really enjoyed the insights.</Text>
+          {/* Comment Section */}
+          <View style={[styles.commentSection, themeStyles.commentSection]}>
+            <Text style={[styles.commentHeader, themeStyles.commentHeader]}>Comments</Text>
+            
+            <View style={[styles.commentBox, themeStyles.commentBox]}>
+              <Text style={[styles.commentAuthor, themeStyles.commentAuthor]}>Jane Doe</Text>
+              <Text style={[styles.commentMeta, themeStyles.commentMeta]}>2 days ago</Text>
+              <Text style={[styles.commentText, themeStyles.commentText]}>Great post! Really enjoyed the insights.</Text>
+            </View>
+            
+            <View style={[styles.commentBox, themeStyles.commentBox]}>
+              <Text style={[styles.commentAuthor, themeStyles.commentAuthor]}>John Smith</Text>
+              <Text style={[styles.commentMeta, themeStyles.commentMeta]}>1 week ago</Text>
+              <Text style={[styles.commentText, themeStyles.commentText]}>Thanks for sharing this valuable information.</Text>
+            </View>
+            
+            <View style={[styles.addCommentBox, themeStyles.addCommentBox]}>
+              <Text style={[styles.addCommentText, themeStyles.addCommentText]}>Write a comment...</Text>
+            </View>
           </View>
-          
-          <View style={[styles.commentBox, themeStyles.commentBox]}>
-            <Text style={[styles.commentAuthor, themeStyles.commentAuthor]}>John Smith</Text>
-            <Text style={[styles.commentMeta, themeStyles.commentMeta]}>1 week ago</Text>
-            <Text style={[styles.commentText, themeStyles.commentText]}>Thanks for sharing this valuable information.</Text>
-          </View>
-          
-          <View style={[styles.addCommentBox, themeStyles.addCommentBox]}>
-            <Text style={[styles.addCommentText, themeStyles.addCommentText]}>Write a comment...</Text>
-          </View>
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+        </ScrollView>
+      </SafeAreaView>
+    </View>
   );
 }
 

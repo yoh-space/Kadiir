@@ -194,11 +194,8 @@ export default function SettingScreen() {
   );
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: theme.background }}>
-      <StatusBar 
-        style={isDark ? 'light' : 'dark'} 
-        backgroundColor={theme.header.background} 
-      />
+    <View style={{ flex: 1, backgroundColor: isDark ? '#181a20' : 'whitesmoke' }}>
+      <StatusBar backgroundColor={isDark ? '#181a20' : 'whitesmoke'} barStyle={isDark ? 'light-content' : 'dark-content'} animated={true} />
       <View style={[styles.headerBox, { backgroundColor: theme.header.background }]}>
         <TouchableOpacity
           onPress={() => navigation.goBack()}
@@ -229,7 +226,7 @@ export default function SettingScreen() {
         {renderSection('About App', aboutApp)}
         {renderSection('Social Settings', socialSettings)}
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 

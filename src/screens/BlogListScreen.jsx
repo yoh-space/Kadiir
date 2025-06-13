@@ -1,9 +1,8 @@
 import React from 'react';
-import { View, FlatList, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, FlatList, Text, StyleSheet, TouchableOpacity, StatusBar } from 'react-native';
 import useWordPressApi from '../hooks/useWordPressApi';
 import BlogPostItem from '../components/BlogPostItem';
 import { useTheme } from './SettingScreen';
-import { StatusBar } from 'expo-status-bar';
 
 export default function BlogListScreen({ navigation, route }) {
   const { posts, getCategoryNames, loading, refresh } = useWordPressApi();
@@ -19,8 +18,8 @@ export default function BlogListScreen({ navigation, route }) {
     : posts;
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.background }]}>  
-      <StatusBar style="light" />
+    <View style={{ flex: 1, backgroundColor: isDark ? '#181a20' : 'whitesmoke' }}>
+      <StatusBar backgroundColor={isDark ? '#181a20' : 'whitesmoke'} barStyle={isDark ? 'light-content' : 'dark-content'} animated={true} />
       <Text style={[styles.header, { color: theme.text }]}>{category || 'All Blogs'}</Text>
       <FlatList
         data={displayedPosts}
@@ -42,10 +41,6 @@ export default function BlogListScreen({ navigation, route }) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingTop: 8,
-  },
   header: {
     fontSize: 28,
     fontWeight: 'bold',
