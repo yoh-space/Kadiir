@@ -5,6 +5,7 @@ import ProfileScreen from '../screens/ProfileScreen';
 import FeaturedScreen from '../screens/FeaturedScreen';
 import { useTheme } from '../screens/SettingScreen';
 import { Ionicons } from '@expo/vector-icons';
+import BookmarkedScreen from '../screens/BookmarkedScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -64,6 +65,16 @@ const MainTabNavigator = () => {
         name="Favorites" 
         component={FavoritesScreen} 
         options={{ title: 'Favorites' }}
+      />
+      <Tab.Screen 
+        name="Bookmarked"
+        component={BookmarkedScreen} 
+        options={{ 
+          title: 'Bookmarked',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="bookmark-outline" size={size} color={color} />
+          )
+        }} 
       />
       <Tab.Screen 
         name="Profile" 

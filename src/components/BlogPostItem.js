@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '../screens/SettingScreen';
 import { decode } from 'he';
+import { useFavorites } from './FavoritesContext';
 
 function getFeaturedImage(post) {
   try {
@@ -16,14 +17,19 @@ export default function BlogPostItem({
   post,
   categoryNames = [],
   onPress,
-  isFavorite,
-  onToggleFavorite,
-  isBookmarked,
-  onToggleBookmark,
+  isFavorite: isFavoriteProp,
+  onToggleFavorite: onToggleFavoriteProp,
+  isBookmarked: isBookmarkedProp,
+  onToggleBookmark: onToggleBookmarkProp,
 }) {
   const { isDark } = useTheme();
+  const { favoriteIds, toggleFavorite, bookmarkedPosts, toggleBookmark } = useFavorites();
   const imageUrl = useMemo(() => getFeaturedImage(post), [post]);
-  
+
+  // Determine favorite/bookmark state from context if not provided
+  const isFavorite = typeof isFavoriteProp === 'boolean' ? isFavoriteProp : favoriteIds.includes(post.id);
+  const isBookmarked = typeof isBookmarkedProp === 'boolean' ? isBookmarkedProp : bookmarkedPosts.some(p => p.id === post.id);
+
   // Memoize processed text to avoid recomputing on every render
   const processedTitle = useMemo(() => {
     if (!post?.title?.rendered) return '';
@@ -69,7 +75,7 @@ export default function BlogPostItem({
             styles.iconBtn,
             { backgroundColor: isDark ? 'rgba(30,30,30,0.85)' : 'rgba(255,255,255,0.85)' },
           ]}
-          onPress={onToggleFavorite}
+          onPress={() => (onToggleFavoriteProp ? onToggleFavoriteProp(post) : toggleFavorite(post))}
           accessibilityLabel={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
           accessibilityRole="button"
         >
@@ -85,7 +91,7 @@ export default function BlogPostItem({
             styles.iconBtn,
             { backgroundColor: isDark ? 'rgba(30,30,30,0.85)' : 'rgba(255,255,255,0.85)' },
           ]}
-          onPress={onToggleBookmark}
+          onPress={() => (onToggleBookmarkProp ? onToggleBookmarkProp(post) : toggleBookmark(post))}
           accessibilityLabel={isBookmarked ? 'Remove bookmark' : 'Add bookmark'}
           accessibilityRole="button"
         >

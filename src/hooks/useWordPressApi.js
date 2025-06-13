@@ -17,7 +17,7 @@ export default function useWordPressApi() {
       let allPosts = [];
       let page = 1;
       let totalPages = 1;
-      const perPage = 100; // WordPress max per_page
+      const perPage = 25; // WordPress max per_page
       do {
         const res = await axios.get(`${API_BASE}/posts`, {
           params: { _embed: true, per_page: perPage, page },
