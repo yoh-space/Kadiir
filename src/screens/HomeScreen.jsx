@@ -23,6 +23,7 @@ import HomeOnlyForYou from '../components/home/HomeOnlyForYou';
 import BlogPostItem from '../components/BlogPostItem';
 import { Ionicons } from '@expo/vector-icons';
 import { DrawerActions } from '@react-navigation/native';
+import PopularScreen from './PopularScreen';
 
 export default function HomeScreen({ navigation }) {
   const {
@@ -82,7 +83,7 @@ export default function HomeScreen({ navigation }) {
     { name: 'News', subs: ['Africa', 'Ethiopia', 'World'] },
     { name: 'Shop', subs: ['Books', 'Cloths', 'Food Shop'] },
     { name: 'Technology', subs: ['ICT/IT'] },
-    { name: 'Entertainment', subs: [] },
+    { name: 'Entertainment', subs: ['Jokes','Sport'] },
   ];
 
   const handleScroll = (event) => {

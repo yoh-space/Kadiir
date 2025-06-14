@@ -1,11 +1,16 @@
-import React from 'react';
-import { View, Text, ScrollView, StyleSheet, Image, SafeAreaView, StatusBar } from 'react-native';
+import React, { useEffect, useState, useCallback } from 'react';
+import { View, Text, ScrollView, StyleSheet, Image, SafeAreaView, StatusBar, useWindowDimensions, ActivityIndicator, TouchableOpacity, Image as RNImage } from 'react-native';
 import RelatedPost from './RelatedPost';
 import { useTheme } from './SettingScreen';
+import RenderHtml from 'react-native-render-html';
+import useWordPressApi from '../hooks/useWordPressApi';
+import { decode } from 'he';
 
 export default function PostScreen({ route }) {
   const { post } = route.params;
   const { isDark, theme } = useTheme();
+  const { width } = useWindowDimensions();
+  const { getPostComments } = useWordPressApi();
 
   // Get featured image if available
   let imageUrl = null;
@@ -15,6 +20,34 @@ export default function PostScreen({ route }) {
 
   // Render full content (prefer content.rendered, fallback to excerpt)
   const content = post.content?.rendered || post.excerpt?.rendered || '';
+
+  // --- Comments State ---
+  const [comments, setComments] = useState([]);
+  const [commentsLoading, setCommentsLoading] = useState(true);
+  const [commentsError, setCommentsError] = useState(null);
+  const [commentsPage, setCommentsPage] = useState(1);
+  const [hasMoreComments, setHasMoreComments] = useState(false);
+  const COMMENTS_PER_PAGE = 10;
+
+  const fetchComments = useCallback(async (page = 1, append = false) => {
+    setCommentsLoading(true);
+    setCommentsError(null);
+    try {
+      const { comments: newComments, hasMore } = await getPostComments(post.id, page, COMMENTS_PER_PAGE);
+      console.log('Fetched comments for post', '1671', newComments);
+      setComments(prev => append ? [...prev, ...newComments] : newComments);
+      setHasMoreComments(hasMore);
+      setCommentsPage(page);
+    } catch (e) {
+      setCommentsError('Failed to load comments.');
+    } finally {
+      setCommentsLoading(false);
+    }
+  }, [post.id, getPostComments]);
+
+  useEffect(() => {
+    fetchComments(1, false);
+  }, [fetchComments]);
 
   // Theme styles
   const themeStyles = StyleSheet.create({
@@ -88,21 +121,20 @@ export default function PostScreen({ route }) {
               }]} />
             </View>
           )}
-          
           <View style={[styles.textContent, themeStyles.textContent]}>
             <Text style={[styles.title, themeStyles.title]}>{post.title.rendered}</Text>
-            
             <View style={styles.metaContainer}>
               <Text style={[styles.date, themeStyles.metaText]}>{new Date(post.date).toLocaleDateString()}</Text>
               <View style={[styles.dotSeparator, themeStyles.dotSeparator]} />
               <Text style={[styles.readTime, themeStyles.metaText]}>5 min read</Text>
             </View>
-            
             <View style={[styles.divider, themeStyles.divider]} />
-            
-            <Text style={[styles.body, themeStyles.body]}>
-              {content.replace(/<p>|<\/p>/gi, '\n').replace(/<[^>]+>/g, '').replace(/&[a-z]+;/gi, '').replace(/\n+/g, '\n').trim()}
-            </Text>
+            <RenderHtml
+              contentWidth={width}
+              source={{ html: content }}
+              baseStyle={{ color: themeStyles.body.color, fontSize: 17, lineHeight: 28 }}
+              ignoredDomTags={['form']}
+            />
           </View>
 
           {/* Related Posts Section */}
@@ -115,22 +147,37 @@ export default function PostScreen({ route }) {
           {/* Comment Section */}
           <View style={[styles.commentSection, themeStyles.commentSection]}>
             <Text style={[styles.commentHeader, themeStyles.commentHeader]}>Comments</Text>
-            
-            <View style={[styles.commentBox, themeStyles.commentBox]}>
-              <Text style={[styles.commentAuthor, themeStyles.commentAuthor]}>Jane Doe</Text>
-              <Text style={[styles.commentMeta, themeStyles.commentMeta]}>2 days ago</Text>
-              <Text style={[styles.commentText, themeStyles.commentText]}>Great post! Really enjoyed the insights.</Text>
-            </View>
-            
-            <View style={[styles.commentBox, themeStyles.commentBox]}>
-              <Text style={[styles.commentAuthor, themeStyles.commentAuthor]}>John Smith</Text>
-              <Text style={[styles.commentMeta, themeStyles.commentMeta]}>1 week ago</Text>
-              <Text style={[styles.commentText, themeStyles.commentText]}>Thanks for sharing this valuable information.</Text>
-            </View>
-            
-            <View style={[styles.addCommentBox, themeStyles.addCommentBox]}>
-              <Text style={[styles.addCommentText, themeStyles.addCommentText]}>Write a comment...</Text>
-            </View>
+            {commentsLoading && comments.length === 0 && (
+              <ActivityIndicator size="small" color="#1db954" style={{ marginVertical: 16 }} />
+            )}
+            {commentsError && (
+              <Text style={{ color: '#e74c3c', marginBottom: 12 }}>{commentsError}</Text>
+            )}
+            {!commentsLoading && comments.length === 0 && !commentsError && (
+              <Text style={{ color: '#888', marginBottom: 12 }}>No comments yet.</Text>
+            )}
+            {comments.map(comment => (
+              <View key={comment.id} style={[styles.commentBox, themeStyles.commentBox]}> 
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
+                  {comment.author_avatar_urls?.['48'] ? (
+                    <RNImage source={{ uri: comment.author_avatar_urls['48'] }} style={{ width: 32, height: 32, borderRadius: 16, marginRight: 10 }} />
+                  ) : null}
+                  <View>
+                    <Text style={[styles.commentAuthor, themeStyles.commentAuthor]}>{comment.author_name}</Text>
+                    <Text style={[styles.commentMeta, themeStyles.commentMeta]}>{new Date(comment.date).toLocaleDateString()}</Text>
+                  </View>
+                </View>
+                <Text style={[styles.commentText, themeStyles.commentText]}>{decode(comment.content?.rendered?.replace(/<[^>]+>/g, '') || '')}</Text>
+              </View>
+            ))}
+            {hasMoreComments && !commentsLoading && (
+              <TouchableOpacity
+                style={{ alignSelf: 'center', marginTop: 8, backgroundColor: '#1db954', borderRadius: 6, paddingHorizontal: 18, paddingVertical: 8 }}
+                onPress={() => fetchComments(commentsPage + 1, true)}
+              >
+                <Text style={{ color: '#fff', fontWeight: 'bold' }}>Load more comments</Text>
+              </TouchableOpacity>
+            )}
           </View>
         </ScrollView>
       </SafeAreaView>
